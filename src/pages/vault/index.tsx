@@ -1,5 +1,5 @@
 import Head from "next/head";
-import type { NextPage } from "next";
+import type { NextPageWithLayout } from "../../types/page";
 import { selectAccountState, setAccountState } from "../../store/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { wrapper } from "store/store";
@@ -7,14 +7,13 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Box, Button, ChakraProvider, Flex } from "@chakra-ui/react";
 import { Layout } from "layouts/layout";
-import BasicTable from "components/BasicTable";
+import { DataTable } from "components/DataTable";
 import VaultListCard from "components/vaults/VaultListCard";
-import { vaultDatas, VaultColumnDatas } from "pages/api/mocks/vaults";
-
+import { vaultData, VaultColumns } from "pages/api/mocks/vaults";
+import { columns, data } from "pages/api/mocks/data";
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ params }) => {
-      console.log("State on server", store.getState());
       return {
         props: {
           authState: false,
@@ -22,7 +21,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
       };
     }
 );
-const Vault: NextPage = () => {
+const Vault: NextPageWithLayout = () => {
   const router = useRouter();
   const AccountState = useSelector(selectAccountState);
   const dispatch = useDispatch();
@@ -34,11 +33,7 @@ const Vault: NextPage = () => {
       <>
         <VaultListCard />
         <Box mt={50}>
-          <BasicTable
-            link="vault"
-            datas={vaultDatas}
-            columns={VaultColumnDatas}
-          />
+          <DataTable data={vaultData} columns={VaultColumns} />
         </Box>
       </>
     </>

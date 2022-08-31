@@ -1,11 +1,12 @@
-// src/pages/_app.tsx
-import { ChakraProvider } from "@chakra-ui/react";
 import type { AppProps } from "next/app";
-import { Layout } from "layouts/layout";
 import { wrapper } from "store/store";
+import type { NextPageWithLayout } from "../types/page";
 
-function MyApp({ Component, pageProps }: AppProps) {
-  const getLayout = Component.getLayout || ((page) => page);
+type Props = AppProps & {
+  Component: NextPageWithLayout;
+};
+function MyApp({ Component, pageProps }: Props) {
+  const getLayout = Component.getLayout ?? ((page) => page);
   return getLayout(<Component {...pageProps} />);
 }
 

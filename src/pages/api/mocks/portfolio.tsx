@@ -1,6 +1,5 @@
-import { Column } from "react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 
-//token
 export type TokenInfo = {
   address: string;
   name: string;
@@ -11,7 +10,7 @@ export type TokenInfo = {
   allocation: number;
 };
 
-export const tokenDatas: TokenInfo[] = [
+export const tokenData: TokenInfo[] = [
   {
     address: "0x02b7a6d41F929a2d09D6dd8aF5537c1d1fe2E678",
     name: "token 1",
@@ -59,52 +58,43 @@ export const tokenDatas: TokenInfo[] = [
   },
 ];
 
-export type TokenColumn = Column<TokenInfo> & {
-  isNumeric: boolean;
-};
+const columnHelper = createColumnHelper<TokenInfo>();
 
-export const tokenColumns: TokenColumn[] = [
-  {
-    Header: "Asset",
-    accessor: "name",
-    isNumeric: false,
-  },
-  {
-    Header: "Balance",
-    accessor: "balance",
-    isNumeric: true,
-  },
-  {
-    Header: "Price",
-    accessor: "price",
-    isNumeric: true,
-  },
-  {
-    Header: "This Day",
-    accessor: "thisDay",
-    isNumeric: true,
-    Cell: (props) => {
-      return (
-        <p style={{ color: props.value > 0 ? "green" : "red" }}>
-          {props.value} %
-        </p>
-      );
+export const tokenColumns = [
+  columnHelper.accessor("name", {
+    cell: (info) => info.getValue(),
+    header: "Asset",
+  }),
+  columnHelper.accessor("balance", {
+    cell: (info) => info.getValue(),
+    header: "Balance",
+    meta: {
+      isNumeric: true,
     },
-  },
-  {
-    Header: "Value",
-    accessor: "value",
-    isNumeric: true,
-    Cell: (props) => {
-      return <p>${props.value}</p>;
+  }),
+  columnHelper.accessor("thisDay", {
+    cell: (info) => (
+      <p style={{ color: info.getValue() > 0 ? "green" : "red" }}>
+        {info.getValue()} %
+      </p>
+    ),
+    header: "This Day",
+    meta: {
+      isNumeric: true,
     },
-  },
-  {
-    Header: "Allocation",
-    accessor: "allocation",
-    isNumeric: true,
-    Cell: (props) => {
-      return <p>{props.value} %</p>;
+  }),
+  columnHelper.accessor("value", {
+    cell: (info) => <p>${info.getValue()}</p>,
+    header: "Value",
+    meta: {
+      isNumeric: true,
     },
-  },
+  }),
+  columnHelper.accessor("allocation", {
+    cell: (info) => <p>{info.getValue()} %</p>,
+    header: "Allocation",
+    meta: {
+      isNumeric: true,
+    },
+  }),
 ];

@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { NextPageWithLayout } from "../../../types/page";
 import { selectAccountState } from "../../../store/accountSlice";
 import BasicStatistics from "../../../components/vault/VaultInfo";
 import { useDispatch, useSelector } from "react-redux";
@@ -109,7 +109,7 @@ const VaultNavList: Array<VaultNav> = [
   { name: "Depositers", component: <Depositer /> },
 ];
 
-const Vault: NextPage = () => {
+const Vault: NextPageWithLayout = () => {
   const router = useRouter();
 
   const { address } = router.query;

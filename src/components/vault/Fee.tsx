@@ -15,18 +15,13 @@ import {
 } from "@chakra-ui/react";
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { useTable, useSortBy, Column } from "react-table";
-import { tokenDatas, tokenColumns } from "pages/api/mocks/fee";
-import type { TokenInfo, TokenColumn } from "pages/api/mocks/portfolio";
-import BasicTable from "../BasicTable";
+import { tokenData, tokenColumns } from "pages/api/mocks/fee";
+import { DataTable } from "../DataTable";
 
 interface Props {
   link: string;
 }
 export default function Fee() {
-  const columns = tokenColumns;
-  const data = tokenDatas;
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data }, useSortBy);
   return (
     <>
       <Box>
@@ -34,7 +29,7 @@ export default function Fee() {
           Fees
         </chakra.h1>
       </Box>
-      <BasicTable link="/" datas={tokenDatas} columns={tokenColumns} />
+      <DataTable data={tokenData} columns={tokenColumns} />
     </>
   );
 }

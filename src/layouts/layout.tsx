@@ -1,15 +1,6 @@
-// src/components/layout.tsx
 import React, { ReactNode } from "react";
-import {
-  Text,
-  Center,
-  Container,
-  useColorModeValue,
-  Flex,
-} from "@chakra-ui/react";
-import Header from "./header";
+import { Center, Container, useColorModeValue, Flex } from "@chakra-ui/react";
 import NavBar from "./NavBar";
-import SimpleSidebar from "./Sidebar";
 
 type Props = {
   children: ReactNode;

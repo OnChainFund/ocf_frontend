@@ -1,4 +1,4 @@
-import { Column } from "react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 
 //depositer
 export type DepositerInfo = {
@@ -8,7 +8,7 @@ export type DepositerInfo = {
   percent: number;
 };
 
-export const depositerDatas: DepositerInfo[] = [
+export const DepositerData: DepositerInfo[] = [
   {
     address: "0x02b7a6d41F929a2d09D6dd8aF5537c1d1fe2E678",
     time: 10,
@@ -41,36 +41,29 @@ export const depositerDatas: DepositerInfo[] = [
   },
 ];
 
-export type DepositerColumn = Column<DepositerInfo> & {
-  isNumeric: boolean;
-};
+const columnHelper = createColumnHelper<DepositerInfo>();
 
-export const depositerColumns: DepositerColumn[] = [
-  {
-    Header: "Address",
-    accessor: "address",
-    isNumeric: false,
-  },
-  {
-    Header: "Since",
-    accessor: "time",
-    isNumeric: true,
-    Cell: (props) => {
-      return <p>{props.value} month</p>;
+export const Depositercolumns = [
+  columnHelper.accessor("address", {
+    cell: (info) => info.getValue(),
+    header: "Address",
+  }),
+  columnHelper.accessor("time", {
+    cell: (info) => <p>{info.getValue()} month</p>,
+    header: "Since",
+  }),
+  columnHelper.accessor("shareNumber", {
+    cell: (info) => info.getValue(),
+    header: "Amount of Share",
+    meta: {
+      isNumeric: true,
     },
-  },
-  {
-    Header: "Amount of Share",
-    accessor: "shareNumber",
-    isNumeric: true,
-  },
-
-  {
-    Header: "Percent",
-    accessor: "percent",
-    isNumeric: true,
-    Cell: (props) => {
-      return <p>{props.value}%</p>;
+  }),
+  columnHelper.accessor("percent", {
+    cell: (info) => <p>{info.getValue()}%</p>,
+    header: "Percent",
+    meta: {
+      isNumeric: true,
     },
-  },
+  }),
 ];

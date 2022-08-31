@@ -1,4 +1,7 @@
-import { useTable, useSortBy, Column } from "react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import router from "next/router";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Button } from "@chakra-ui/react";
 
 // vault
 export type VaultType = {
@@ -10,7 +13,7 @@ export type VaultType = {
   thisDay: number;
 };
 
-export const vaultDatas: VaultType[] = [
+export const vaultData: VaultType[] = [
   {
     address: "0x02b7a6d41F929a2d09D6dd8aF5537c1d1fe2E678",
     name: "vault 1",
@@ -52,34 +55,50 @@ export const vaultDatas: VaultType[] = [
     thisDay: -10,
   },
 ];
+const columnHelper = createColumnHelper<VaultType>();
 
-export type VaultColumnType = Column<VaultType> & {
-  isNumeric: boolean;
-};
-export const VaultColumnDatas: VaultColumnType[] = [
-  {
-    Header: "Name",
-    accessor: "name",
-    isNumeric: false,
-  },
-  {
-    Header: "AUM",
-    accessor: "aum",
-    isNumeric: false,
-  },
-  {
-    Header: "This Month",
-    accessor: "thisMonth",
-    isNumeric: true,
-  },
-  {
-    Header: "This Week",
-    accessor: "thisWeek",
-    isNumeric: true,
-  },
-  {
-    Header: "This Day",
-    accessor: "thisDay",
-    isNumeric: true,
-  },
+export const VaultColumns = [
+  columnHelper.accessor("address", {
+    cell: (info) => {
+      return (
+        <ExternalLinkIcon
+          w={"3"}
+          onClick={() => router.push("/vault/" + info.getValue())}
+        />
+      );
+    },
+    header: "",
+  }),
+  columnHelper.accessor("name", {
+    cell: (info) => {
+      console.log(info);
+      return info.getValue();
+    },
+    header: "Name",
+  }),
+  columnHelper.accessor("aum", {
+    cell: (info) => info.getValue(),
+    header: "AUM",
+  }),
+  columnHelper.accessor("thisMonth", {
+    cell: (info) => info.getValue(),
+    header: "This Montth",
+    meta: {
+      isNumeric: true,
+    },
+  }),
+  columnHelper.accessor("thisWeek", {
+    cell: (info) => info.getValue(),
+    header: "This Week",
+    meta: {
+      isNumeric: true,
+    },
+  }),
+  columnHelper.accessor("thisDay", {
+    cell: (info) => info.getValue(),
+    header: "This Day",
+    meta: {
+      isNumeric: true,
+    },
+  }),
 ];

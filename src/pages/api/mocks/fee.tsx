@@ -1,13 +1,12 @@
-import { Column } from "react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 
-//token
 export type feeType = {
   feeType: string;
   rate: number;
   unpaidFee: number;
 };
 
-export const tokenDatas: feeType[] = [
+export const tokenData: feeType[] = [
   {
     feeType: "Performance Fee",
     rate: 10,
@@ -20,22 +19,26 @@ export const tokenDatas: feeType[] = [
   },
 ];
 
-export const tokenColumns: Column<feeType>[] = [
-  {
-    Header: "Fee Type",
-    accessor: "feeType",
-  },
-  {
-    Header: "Rate",
-    accessor: "rate",
-  },
-  {
-    Header: "Unpaid Fee",
-    accessor: "unpaidFee",
-    Cell: (props) => {
-      return (
-        <p style={{ color: props.value > 0 ? "" : "" }}>{props.value} shares</p>
-      );
+const columnHelper = createColumnHelper<feeType>();
+
+export const tokenColumns = [
+  columnHelper.accessor("feeType", {
+    cell: (info) => info.getValue(),
+    header: "Fee Type",
+  }),
+  columnHelper.accessor("rate", {
+    cell: (info) => info.getValue(),
+    header: "Rate",
+  }),
+  columnHelper.accessor("unpaidFee", {
+    cell: (info) => (
+      <p style={{ color: info.getValue() > 0 ? "" : "" }}>
+        {info.getValue()} shares
+      </p>
+    ),
+    header: "Unpaid Fee",
+    meta: {
+      isNumeric: true,
     },
-  },
+  }),
 ];

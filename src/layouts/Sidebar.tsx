@@ -24,7 +24,6 @@ import {
 } from "react-icons/fi";
 import { IconType } from "react-icons";
 import { ReactText } from "react";
-import { MyVaultCard } from "../components/vault/MyVault";
 
 interface LinkItemProps {
   name: string;
@@ -74,9 +73,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       pos="fixed"
       h="full"
       {...rest}
-    >
-      <MyVaultCard />
-    </Box>
+    ></Box>
   );
 };
 

@@ -100,7 +100,7 @@ const ValueCard = ({
 };
 const Fianacials = () => {
   return (
-    <Box py={6} px={5} min={"100vh"}>
+    <Box py={6} px={5} minW={"100vh"}>
       <Stack spacing={4} width={"100%"} direction={"column"}>
         <Heading size={"lg"}>Value</Heading>
         <ValueCard

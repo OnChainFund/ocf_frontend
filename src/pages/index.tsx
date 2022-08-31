@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { NextPageWithLayout } from "../types/page";
 import { selectAccountState, setAccountState } from "../store/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { wrapper } from "store/store";
@@ -17,7 +17,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
       };
     }
 );
-const Home: NextPage = () => {
+const Home: NextPageWithLayout = () => {
   const AccountState = useSelector(selectAccountState);
   const dispatch = useDispatch();
   return (
