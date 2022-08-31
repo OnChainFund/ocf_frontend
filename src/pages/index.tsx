@@ -1,0 +1,41 @@
+import type { NextPage } from "next";
+import { selectAccountState, setAccountState } from "../store/accountSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { wrapper } from "store/store";
+import { ChakraProvider } from "@chakra-ui/react";
+import { Layout } from "layouts/layout";
+import Head from "next/head";
+import HomeView from "components/HomeView";
+
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) =>
+    async ({ params }) => {
+      return {
+        props: {
+          authState: false,
+        },
+      };
+    }
+);
+const Home: NextPage = () => {
+  const AccountState = useSelector(selectAccountState);
+  const dispatch = useDispatch();
+  return (
+    <>
+      <Head>
+        <title>On Chain Fund</title>
+      </Head>
+      <HomeView />
+    </>
+  );
+};
+
+Home.getLayout = function getLayout(page) {
+  return (
+    <ChakraProvider>
+      <Layout>{page}</Layout>
+    </ChakraProvider>
+  );
+};
+
+export default Home;
