@@ -63,7 +63,7 @@ export default function NavBar() {
               display={{ base: "none", md: "flex" }}
             >
               {Links.map((item) => (
-                <NavLink title={item.name} link={item.link} />
+                <NavLink key={item.name} title={item.name} link={item.link} />
               ))}
             </HStack>
           </HStack>

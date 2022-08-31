@@ -1,13 +1,6 @@
 // src/components/VaultLayout.tsx
 import React, { ReactNode } from "react";
-import {
-  Text,
-  Center,
-  Container,
-  useColorModeValue,
-  Flex,
-} from "@chakra-ui/react";
-import Header from "./header";
+import { Center, Container, useColorModeValue, Flex } from "@chakra-ui/react";
 import NavBar from "./NavBar";
 import SimpleSidebar from "./Sidebar";
 import VaultDetail from "./VaultDetail";
@@ -21,7 +14,9 @@ export function VaultLayout(props: Props) {
     <div>
       <NavBar />
       <Flex>
-        <SimpleSidebar children={undefined} />
+        <SimpleSidebar>
+          <></>
+        </SimpleSidebar>
 
         <Container maxW="container.lg" py="5">
           <VaultDetail />
