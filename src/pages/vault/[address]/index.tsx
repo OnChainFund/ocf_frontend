@@ -1,8 +1,8 @@
 import type { NextPageWithLayout } from "../../../types/page";
-import { selectAccountState } from "../../../store/slices/accountSlice";
+import { selectAccountState } from "../../../app/store/slices/accountSlice";
 import BasicStatistics from "../../../components/vault/VaultInfo";
 import { useDispatch, useSelector } from "react-redux";
-import { wrapper } from "store/store";
+import { wrapper } from "app/store/store";
 import {
   Image,
   Box,
@@ -33,15 +33,6 @@ import Depositer from "components/vault/Depositer";
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ params }) => {
-      // we can set the initial state from here
-      // we are setting to false but you can run your custom logic here
-      console.log("=================");
-      console.log(params);
-      console.log(store.getState());
-      //const AccountState = useSelector(selectAccountState);
-      // console.log(AccountState);
-      //await store.dispatch(setAccountState(true));
-      console.log("State on server", store.getState());
       return {
         props: {
           authState: false,

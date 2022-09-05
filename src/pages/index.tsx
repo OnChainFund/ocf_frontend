@@ -1,7 +1,10 @@
 import type { NextPageWithLayout } from "../types/page";
-import { selectAccountState, setAccountState } from "../store/slices/accountSlice";
+import {
+  selectAccountState,
+  setAccountState,
+} from "../app/store/slices/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { wrapper } from "store/store";
+import { wrapper } from "app/store/store";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Layout } from "layouts/layout";
 import Head from "next/head";
@@ -31,11 +34,7 @@ const Home: NextPageWithLayout = () => {
 };
 
 Home.getLayout = function getLayout(page) {
-  return (
-    <ChakraProvider>
-      <Layout>{page}</Layout>
-    </ChakraProvider>
-  );
+  return <ChakraProvider>{page}</ChakraProvider>;
 };
 
 export default Home;

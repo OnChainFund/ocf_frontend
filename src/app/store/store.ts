@@ -2,7 +2,7 @@ import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import { accountSlice } from "./slices/accountSlice";
 import { createWrapper } from "next-redux-wrapper";
 
-const makeStore = () =>
+export const makeStore = () =>
   configureStore({
     reducer: {
       [accountSlice.name]: accountSlice.reducer,

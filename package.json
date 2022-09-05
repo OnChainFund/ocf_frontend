@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.6.9",
     "@chakra-ui/icons": "^2.0.8",
     "@chakra-ui/react": "^2.2.8",
     "@emotion/react": "^11.10.0",
@@ -17,8 +18,10 @@
     "@reduxjs/toolkit": "^1.8.5",
     "@tanstack/react-table": "^8.5.11",
     "chart.js": "^3.9.1",
+    "debounce": "^1.2.1",
     "ethers": "^5.7.0",
     "framer-motion": "^7.2.0",
+    "graphql": "^16.6.0",
     "lightweight-charts": "^3.8.0",
     "namor": "^2.0.4",
     "next": "12.2.5",

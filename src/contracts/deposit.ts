@@ -7,7 +7,10 @@ import {
   TransactionResponse,
   TransactionReceipt,
 } from "@ethersproject/abstract-provider";
-import { selectAccountState, setAccountState } from "../store/slices/accountSlice";
+import {
+  selectAccountState,
+  setAccountState,
+} from "../app/store/slices/accountSlice";
 import { useSelector } from "react-redux";
 
 interface Props {
@@ -34,9 +37,9 @@ export default function TransferERC20(props: Props) {
     erc20
       .transfer(toAddress, parseEther(amount))
       .then((tr: TransactionResponse) => {
-        console.log(`TransactionResponse TX hash: ${tr.hash}`);
+        //console.log(`TransactionResponse TX hash: ${tr.hash}`);
         tr.wait().then((receipt: TransactionReceipt) => {
-          console.log("transfer receipt", receipt);
+          //console.log("transfer receipt", receipt);
         });
       })
       .catch((e: Error) => console.log(e));

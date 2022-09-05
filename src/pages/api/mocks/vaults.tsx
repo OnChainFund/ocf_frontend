@@ -71,7 +71,6 @@ export const VaultColumns = [
   }),
   columnHelper.accessor("name", {
     cell: (info) => {
-      console.log(info);
       return info.getValue();
     },
     header: "Name",

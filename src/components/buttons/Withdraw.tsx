@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { selectAccountState } from "store/slices/accountSlice";
+import { selectAccountState } from "app/store/slices/accountSlice";
 import { BigNumber, ethers, utils, Contract } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import ComptrollerLib from "../../abis/ocf/ComptrollerLib.json";
@@ -54,8 +54,6 @@ export function WithdrawButton() {
   async function tokenBalance(account: string) {
     if (!window.ethereum) return;
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    console.log(account);
-    console.log(VaultLib);
     const vaultProxy = new ethers.Contract(
       "0x02b7a6d41F929a2d09D6dd8aF5537c1d1fe2E678",
       VaultLib["abi"],

@@ -1,5 +1,8 @@
 import type { AppProps } from "next/app";
-import { wrapper } from "store/store";
+import { Provider } from "react-redux";
+
+import { debounce } from "debounce";
+import { wrapper } from "app/store/store";
 import type { NextPageWithLayout } from "../types/page";
 
 type Props = AppProps & {
