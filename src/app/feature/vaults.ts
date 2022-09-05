@@ -1,10 +1,17 @@
 import client from "../../apollo-client";
 import { ethers } from "ethers";
 import ComptrollerLib from "../../abis/ocf/ComptrollerLib.json";
-import { nodeProvider } from "../../app/feature/basic";
+import { nodeProvider } from "./basic";
 import { gql } from "@apollo/client";
-
-export async function getVaultData() {
+export type VaultType = {
+  address: string;
+  name: string;
+  aum: number;
+  thisMonth: number;
+  thisWeek: number;
+  thisDay: number;
+};
+async function getVaultData() {
   const { data } = await client.query({
     query: gql`
       query {
@@ -21,6 +28,7 @@ export async function getVaultData() {
       }
     `,
   });
+  return data;
 }
 export async function getAUM(comptrollerProxy: string) {
   const contract = new ethers.Contract(
@@ -33,5 +41,16 @@ export async function getAUM(comptrollerProxy: string) {
 }
 
 export async function getVaultTableData() {
+  const allFunds = await getVaultData();
+  const data: VaultType[] = await allFunds["allFunds"].map(async (vault) => ({
+    address: vault.comptrollerProxy,
+    name: vault.name,
+    aum: await getAUM(vault.comptrollerProxy),
+    //aum: 1,
+    thisMonth: 25.4,
+    thisWeek: 10,
+    thisDay: -10,
+  }));
 
+  return data;
 }
