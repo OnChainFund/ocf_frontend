@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { selectAccountState } from "store/accountSlice";
+import { selectAccountState } from "store/slices/accountSlice";
 import { BigNumber, ethers, utils, Contract } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import ComptrollerLib from "../../abis/ocf/ComptrollerLib.json";

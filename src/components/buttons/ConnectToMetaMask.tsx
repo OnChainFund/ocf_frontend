@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box } from "@chakra-ui/layout";
 import { Button, Flex } from "@chakra-ui/react";
 import { ethers } from "ethers";
-import { selectAccountState, setAccountState } from "../../store/accountSlice";
+import { selectAccountState, setAccountState } from "../../store/slices/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 declare let window: any;
 export const ConnectToMetaMask = () => {

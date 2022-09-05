@@ -1,5 +1,5 @@
 import type { NextPageWithLayout } from "../types/page";
-import { selectAccountState, setAccountState } from "../store/accountSlice";
+import { selectAccountState, setAccountState } from "../store/slices/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { wrapper } from "store/store";
 import { ChakraProvider } from "@chakra-ui/react";

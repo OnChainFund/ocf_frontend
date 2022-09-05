@@ -7,7 +7,7 @@ import {
   TransactionResponse,
   TransactionReceipt,
 } from "@ethersproject/abstract-provider";
-import { selectAccountState, setAccountState } from "../store/accountSlice";
+import { selectAccountState, setAccountState } from "../store/slices/accountSlice";
 import { useSelector } from "react-redux";
 
 interface Props {

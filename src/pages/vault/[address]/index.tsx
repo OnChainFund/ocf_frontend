@@ -1,5 +1,5 @@
 import type { NextPageWithLayout } from "../../../types/page";
-import { selectAccountState } from "../../../store/accountSlice";
+import { selectAccountState } from "../../../store/slices/accountSlice";
 import BasicStatistics from "../../../components/vault/VaultInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { wrapper } from "store/store";
