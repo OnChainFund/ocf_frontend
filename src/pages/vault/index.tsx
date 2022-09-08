@@ -11,16 +11,17 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql } from "@apollo/client";
 import client from "../../apollo-client";
-import { ethers } from "ethers";
-import { nodeProvider } from "../../app/feature/basic";
-import ComptrollerLib from "../../abis/ocf/ComptrollerLib.json";
-import { getAUM } from "app/feature/comptrollerLib";
+import { getAUM } from "app/feature/vaults";
 import { useEffect, useState } from "react";
 // vault
 type VaultType = {
   address: string;
   name: string;
   aum: number;
+  denominatedAsset: {
+    name: string;
+    address: string;
+  };
   thisMonth: number;
   thisWeek: number;
   thisDay: number;
@@ -89,6 +90,10 @@ const Vault: NextPageWithLayout = (allFunds) => {
       cell: (info) => info.getValue(),
       header: "AUM",
     }),
+    columnHelper.accessor("denominatedAsset", {
+      cell: (info) => info.getValue().name,
+      header: "准入資產",
+    }),
     columnHelper.accessor("thisMonth", {
       cell: (info) => info.getValue(),
       header: "This Montth",
@@ -111,24 +116,52 @@ const Vault: NextPageWithLayout = (allFunds) => {
       },
     }),
   ];
+  const fixFundData = async () => {
+    let result = [];
+    for (let index = 0; index < allFunds["allFunds"].length; index++) {
+      const vault = allFunds["allFunds"][index];
+      const aumNow = await getAUM(vault.comptrollerProxy);
+      result.push({
+        address: vault.comptrollerProxy,
+        name: vault.name,
+        aum: aumNow,
+        //aum: 1,
+        denominatedAsset: {
+          name: vault.denominatedAsset["name"],
+          address: vault.denominatedAsset["address"],
+        },
+        thisMonth: 25.4,
+        thisWeek: 10,
+        thisDay: -10,
+      });
+    }
+    const final = await Promise.all(result);
+    setvaultData(final);
+  };
   const callData = async () => {
-    const data = await allFunds["allFunds"].map(async (vault) => ({
+    const unresolvedPromises = allFunds["allFunds"].map(async (vault) => ({
       address: vault.comptrollerProxy,
       name: vault.name,
-      aum: getAUM(await vault.comptrollerProxy),
+      aum: await getAUM(vault.comptrollerProxy),
       //aum: 1,
+      denominatedAsset: {
+        name: vault.denominatedAsset["name"],
+        address: vault.denominatedAsset["address"],
+      },
       thisMonth: 25.4,
       thisWeek: 10,
       thisDay: -10,
     }));
-    setvaultData(data);
+    const results = await Promise.all(unresolvedPromises);
+    setvaultData(results);
   };
 
   useEffect(() => {
-    callData();
+    fixFundData();
   }, []);
   console.log(vaultData);
   console.log(allFunds["allFunds"]);
+  console.log(fixFundData(allFunds["allFunds"]));
   const router = useRouter();
   const AccountState = useSelector(selectAccountState);
   const dispatch = useDispatch();
