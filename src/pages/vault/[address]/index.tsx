@@ -30,6 +30,7 @@ import Financials from "components/vault/Financials";
 import Fee from "components/vault/Fee";
 import Policies from "components/vault/Policies";
 import Depositer from "components/vault/Depositer";
+
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ params }) => {

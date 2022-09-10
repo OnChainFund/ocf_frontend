@@ -3,7 +3,7 @@ import type { NextPageWithLayout } from "../../types/page";
 import { selectAccountState } from "../../app/store/slices/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { Box, ChakraProvider } from "@chakra-ui/react";
+import { Box, ChakraProvider, Text } from "@chakra-ui/react";
 import { Layout } from "layouts/layout";
 import { DataTable } from "components/DataTable";
 import VaultListCard from "components/vaults/VaultListCard";
@@ -11,8 +11,9 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql } from "@apollo/client";
 import client from "../../apollo-client";
-import { getAUM } from "app/feature/vaults";
+import { getAUM, getAUMEthCall } from "app/feature/vaults";
 import { useEffect, useState } from "react";
+import { ethers } from "ethers";
 // vault
 type VaultType = {
   address: string;
@@ -42,23 +43,15 @@ export async function getServerSideProps() {
             name
             address
           }
+          price {
+            date
+            price
+          }
         }
       }
     `,
   });
 
-  //let vaultData: VaultType[] = await Promise.all(
-  //  data.allFunds["allFunds"].map((vault) => ({
-  //    address: vault.comptrollerProxy,
-  //    name: vault.name,
-  //    //aum: getAUM(vault.comptrollerProxy),
-  //    aum: 1,
-  //    thisMonth: 25.4,
-  //    thisWeek: 10,
-  //    thisDay: -10,
-  //  }))
-  //);
-  //console.log(data);
   return {
     props: {
       allFunds: data.allFunds,
@@ -87,7 +80,7 @@ const Vault: NextPageWithLayout = (allFunds) => {
       header: "Name",
     }),
     columnHelper.accessor("aum", {
-      cell: (info) => info.getValue(),
+      cell: (info) => Number(info.getValue()).toFixed(2),
       header: "AUM",
     }),
     columnHelper.accessor("denominatedAsset", {
@@ -95,32 +88,57 @@ const Vault: NextPageWithLayout = (allFunds) => {
       header: "准入資產",
     }),
     columnHelper.accessor("thisMonth", {
-      cell: (info) => info.getValue(),
-      header: "This Montth",
+      cell: (info) => (
+        <p style={{ color: info.getValue() >= 0 ? "green" : "red" }}>
+          {info.getValue()} %
+        </p>
+      ),
+      header: "This Month",
       meta: {
         isNumeric: true,
       },
     }),
     columnHelper.accessor("thisWeek", {
-      cell: (info) => info.getValue(),
+      cell: (info) => (
+        <p style={{ color: info.getValue() >= 0 ? "green" : "red" }}>
+          {info.getValue()} %
+        </p>
+      ),
       header: "This Week",
       meta: {
         isNumeric: true,
       },
     }),
     columnHelper.accessor("thisDay", {
-      cell: (info) => info.getValue(),
+      cell: (info) => (
+        <p style={{ color: info.getValue() >= 0 ? "green" : "red" }}>
+          {info.getValue()} %
+        </p>
+      ),
       header: "This Day",
       meta: {
         isNumeric: true,
       },
     }),
   ];
-  const fixFundData = async () => {
+  function percentage(oldValue: number, newValue: number) {
+    if (newValue === 0) {
+      return 0;
+    } else {
+      return (newValue - oldValue) / oldValue;
+    }
+  }
+  const callDataEthCall = async () => {
     let result = [];
     for (let index = 0; index < allFunds["allFunds"].length; index++) {
       const vault = allFunds["allFunds"][index];
-      const aumNow = await getAUM(vault.comptrollerProxy);
+      const aums = await getAUMEthCall(vault.comptrollerProxy, [0, 30, 7, 1]);
+      console.log(aums);
+      const aumNow = Number(ethers.utils.formatEther(aums[0]));
+      const aum30DayAgo = Number(ethers.utils.formatEther(aums[1]));
+      const aum7DayAgo = Number(ethers.utils.formatEther(aums[2]));
+      const aum1DayAgo = Number(ethers.utils.formatEther(aums[3]));
+
       result.push({
         address: vault.comptrollerProxy,
         name: vault.name,
@@ -130,38 +148,52 @@ const Vault: NextPageWithLayout = (allFunds) => {
           name: vault.denominatedAsset["name"],
           address: vault.denominatedAsset["address"],
         },
-        thisMonth: 25.4,
-        thisWeek: 10,
-        thisDay: -10,
+        thisMonth: percentage(aum30DayAgo, aumNow),
+        thisWeek: percentage(aum7DayAgo, aumNow),
+        thisDay: percentage(aum1DayAgo, aumNow),
       });
     }
     const final = await Promise.all(result);
     setvaultData(final);
   };
   const callData = async () => {
-    const unresolvedPromises = allFunds["allFunds"].map(async (vault) => ({
-      address: vault.comptrollerProxy,
-      name: vault.name,
-      aum: await getAUM(vault.comptrollerProxy),
-      //aum: 1,
-      denominatedAsset: {
-        name: vault.denominatedAsset["name"],
-        address: vault.denominatedAsset["address"],
-      },
-      thisMonth: 25.4,
-      thisWeek: 10,
-      thisDay: -10,
-    }));
-    const results = await Promise.all(unresolvedPromises);
-    setvaultData(results);
+    let result = [];
+    for (let index = 0; index < allFunds["allFunds"].length; index++) {
+      const timestampNowWithMillisecond = new Date().getTime();
+      const timestampNow = Math.floor(timestampNowWithMillisecond / 1000);
+      const timeDeltaInADay = 3600 * 24;
+      const vault = allFunds["allFunds"][index];
+      const aumNow = Number(await getAUM(vault.comptrollerProxy));
+      const aum30DayAgo = Number(
+        await getAUM(vault.comptrollerProxy, 30 * timeDeltaInADay)
+      );
+      const aum7DayAgo = Number(
+        await getAUM(vault.comptrollerProxy, 7 * timeDeltaInADay)
+      );
+      const aum1DayAgo = Number(
+        await getAUM(vault.comptrollerProxy, 1 * timeDeltaInADay)
+      );
+      result.push({
+        address: vault.comptrollerProxy,
+        name: vault.name,
+        aum: aumNow,
+        //aum: 1,
+        denominatedAsset: {
+          name: vault.denominatedAsset["name"],
+          address: vault.denominatedAsset["address"],
+        },
+        thisMonth: percentage(aum30DayAgo, aumNow),
+        thisWeek: percentage(aum7DayAgo, aumNow),
+        thisDay: percentage(aum1DayAgo, aumNow),
+      });
+    }
+    const final = await Promise.all(result);
+    setvaultData(final);
   };
 
   useEffect(() => {
-    fixFundData();
+    callData();
   }, []);
-  console.log(vaultData);
-  console.log(allFunds["allFunds"]);
-  console.log(fixFundData(allFunds["allFunds"]));
   const router = useRouter();
   const AccountState = useSelector(selectAccountState);
   const dispatch = useDispatch();
@@ -171,7 +203,7 @@ const Vault: NextPageWithLayout = (allFunds) => {
         <title>Vaults</title>
       </Head>
       <>
-        <VaultListCard />
+        <VaultListCard vaultCount={allFunds["allFunds"].length} />
         <Box mt={50}>
           <DataTable data={vaultData} columns={VaultColumns} />
         </Box>

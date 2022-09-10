@@ -4,6 +4,7 @@ import ComptrollerLib from "../../abis/ocf/ComptrollerLib.json";
 import { nodeProvider } from "./basic";
 import { gql } from "@apollo/client";
 import { timestampToBlockNumber } from "./utils";
+import { Provider, Contract } from "ethcall";
 export type VaultType = {
   address: string;
   name: string;
@@ -31,14 +32,52 @@ async function getVaultData() {
   });
   return data;
 }
-export async function getAUM(comptrollerProxy: string) {
+export async function getAUM(comptrollerProxy: string, timeAgo: number = 0) {
   const contract = new ethers.Contract(
     comptrollerProxy,
     ComptrollerLib["abi"],
     nodeProvider
   );
-  const tx = await contract.callStatic.calcGav();
-  return ethers.utils.formatEther(tx);
+  if (timeAgo === 0) {
+    const tx = await contract.callStatic.calcGav();
+    return ethers.utils.formatEther(tx);
+  } else {
+    const latestBlockNumber = await nodeProvider.getBlockNumber();
+    const guess = latestBlockNumber - Math.floor(timeAgo / 2.775);
+    const tx = await contract.callStatic
+      .calcGav
+      //   {
+      //   blockTag: guess,
+      // }
+      ();
+    const result = ethers.utils.formatEther(tx);
+    return ethers.utils.formatEther(tx);
+  }
+}
+
+export async function getAUMEthCall(
+  comptrollerProxy: string,
+  timeAgo: number[] = []
+): Promise<any[]> {
+  const ethcallProvider = new Provider();
+  await ethcallProvider.init(nodeProvider);
+  const contract = new Contract(comptrollerProxy, ComptrollerLib["abi"]);
+  let calls = [];
+  const latestBlockNumber = await nodeProvider.getBlockNumber();
+  for (let index = 0; index < timeAgo.length; index++) {
+    const element = timeAgo[index];
+    if (timeAgo[index] === 0) {
+      calls.push(contract.calcGav());
+    } else {
+      calls.push(
+        contract.calcGav({
+          blockTag: latestBlockNumber - Math.floor(timeAgo[index] / 2.775),
+        })
+      );
+    }
+  }
+  const data = await ethcallProvider.all(calls);
+  return data;
 }
 
 export async function getPriceVaryPercentage(

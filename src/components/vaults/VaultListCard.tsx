@@ -12,6 +12,7 @@ import { ReactNode } from "react";
 import { BsPerson } from "react-icons/bs";
 import { AiFillFund } from "react-icons/ai";
 import { FaMoneyBillAlt } from "react-icons/fa";
+import client from "apollo-client";
 
 interface StatsCardProps {
   title: string;
@@ -47,8 +48,10 @@ function StatsCard(props: StatsCardProps) {
     </Stat>
   );
 }
-
-export default function VaultListCard() {
+interface VaultListCardProps {
+  vaultCount: number;
+}
+export default function VaultListCard(props: VaultListCardProps) {
   return (
     <Box maxW="7xl" mx={"auto"} pt={5} px={{ base: 2, sm: 12, md: 17 }}>
       <chakra.h1
@@ -72,7 +75,7 @@ export default function VaultListCard() {
         />
         <StatsCard
           title={"Funds"}
-          stat={"10"}
+          stat={String(props.vaultCount)}
           icon={<AiFillFund size={"3em"} />}
         />
       </SimpleGrid>
