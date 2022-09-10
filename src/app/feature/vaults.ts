@@ -1,10 +1,12 @@
 import client from "../../apollo-client";
 import { ethers } from "ethers";
 import ComptrollerLib from "../../abis/ocf/ComptrollerLib.json";
+import FundValueCalculator from "../../abis/ocf/FundValueCalculator.json";
 import { nodeProvider } from "./basic";
 import { gql } from "@apollo/client";
 import { timestampToBlockNumber } from "./utils";
 import { Provider, Contract } from "ethcall";
+import { Addresses } from "abis/ocf/Address";
 export type VaultType = {
   address: string;
   name: string;
@@ -55,29 +57,18 @@ export async function getAUM(comptrollerProxy: string, timeAgo: number = 0) {
   }
 }
 
-export async function getAUMEthCall(
-  comptrollerProxy: string,
-  timeAgo: number[] = []
-): Promise<any[]> {
-  const ethcallProvider = new Provider();
-  await ethcallProvider.init(nodeProvider);
-  const contract = new Contract(comptrollerProxy, ComptrollerLib["abi"]);
-  let calls = [];
-  const latestBlockNumber = await nodeProvider.getBlockNumber();
-  for (let index = 0; index < timeAgo.length; index++) {
-    const element = timeAgo[index];
-    if (timeAgo[index] === 0) {
-      calls.push(contract.calcGav());
-    } else {
-      calls.push(
-        contract.calcGav({
-          blockTag: latestBlockNumber - Math.floor(timeAgo[index] / 2.775),
-        })
-      );
-    }
-  }
-  const data = await ethcallProvider.all(calls);
-  return data;
+export async function getAUMByUSDT(vaultProxy: string) {
+  const contract = new ethers.Contract(
+    Addresses.ocf.FundValueCalculator,
+    FundValueCalculator["abi"],
+    nodeProvider
+  );
+
+  const tx = await contract.callStatic.calcGavInAsset(
+    vaultProxy,
+    Addresses.USDT
+  );
+  return ethers.utils.formatEther(tx);
 }
 
 export async function getPriceVaryPercentage(

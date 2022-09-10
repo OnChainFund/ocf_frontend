@@ -11,7 +11,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql } from "@apollo/client";
 import client from "../../apollo-client";
-import { getAUM, getAUMEthCall } from "app/feature/vaults";
+import { getAUM, getAUMByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 // vault
@@ -23,10 +23,16 @@ type VaultType = {
     name: string;
     address: string;
   };
-  thisMonth: number;
-  thisWeek: number;
-  thisDay: number;
+  thisMonth: number | "-";
+  thisWeek: number | "-";
+  thisDay: number | "-";
 };
+
+interface pageDataType {
+  depositorCount: number;
+  AUMSum: number;
+  table: VaultType[];
+}
 
 const columnHelper = createColumnHelper<VaultType>();
 
@@ -37,16 +43,17 @@ export async function getServerSideProps() {
         allFunds {
           name
           creator
-          vaultProxy
-          comptrollerProxy
           denominatedAsset {
             name
             address
           }
+          vaultProxy
+          comptrollerProxy
           price {
             date
             price
           }
+          depositors
         }
       }
     `,
@@ -60,7 +67,12 @@ export async function getServerSideProps() {
 }
 
 const Vault: NextPageWithLayout = (allFunds) => {
-  const [vaultData, setvaultData] = useState([]);
+  const [vaultData, setvaultData] = useState({
+    depositorCount: 0,
+    AUMSum: 0,
+    table: [],
+  });
+  
   const VaultColumns = [
     columnHelper.accessor("address", {
       cell: (info) => {
@@ -81,7 +93,7 @@ const Vault: NextPageWithLayout = (allFunds) => {
     }),
     columnHelper.accessor("aum", {
       cell: (info) => Number(info.getValue()).toFixed(2),
-      header: "AUM",
+      header: "AUM(USDT)",
     }),
     columnHelper.accessor("denominatedAsset", {
       cell: (info) => info.getValue().name,
@@ -89,7 +101,16 @@ const Vault: NextPageWithLayout = (allFunds) => {
     }),
     columnHelper.accessor("thisMonth", {
       cell: (info) => (
-        <p style={{ color: info.getValue() >= 0 ? "green" : "red" }}>
+        <p
+          style={{
+            color:
+              info.getValue() === "-"
+                ? "black"
+                : info.getValue() >= 0
+                ? "green"
+                : "red",
+          }}
+        >
           {info.getValue()} %
         </p>
       ),
@@ -100,7 +121,16 @@ const Vault: NextPageWithLayout = (allFunds) => {
     }),
     columnHelper.accessor("thisWeek", {
       cell: (info) => (
-        <p style={{ color: info.getValue() >= 0 ? "green" : "red" }}>
+        <p
+          style={{
+            color:
+              info.getValue() === "-"
+                ? "black"
+                : info.getValue() >= 0
+                ? "green"
+                : "red",
+          }}
+        >
           {info.getValue()} %
         </p>
       ),
@@ -111,7 +141,16 @@ const Vault: NextPageWithLayout = (allFunds) => {
     }),
     columnHelper.accessor("thisDay", {
       cell: (info) => (
-        <p style={{ color: info.getValue() >= 0 ? "green" : "red" }}>
+        <p
+          style={{
+            color:
+              info.getValue() === "-"
+                ? "black"
+                : info.getValue() >= 0
+                ? "green"
+                : "red",
+          }}
+        >
           {info.getValue()} %
         </p>
       ),
@@ -121,60 +160,56 @@ const Vault: NextPageWithLayout = (allFunds) => {
       },
     }),
   ];
-  function percentage(oldValue: number, newValue: number) {
-    if (newValue === 0) {
-      return 0;
+  function percentage(oldValue: number | "-", newValue: number) {
+    if (oldValue === "-") {
+      return "-";
     } else {
-      return (newValue - oldValue) / oldValue;
+      if (newValue === 0) {
+        return 0;
+      } else {
+        return (((newValue - oldValue) / oldValue) * 100).toFixed(2);
+      }
     }
   }
-  const callDataEthCall = async () => {
-    let result = [];
-    for (let index = 0; index < allFunds["allFunds"].length; index++) {
-      const vault = allFunds["allFunds"][index];
-      const aums = await getAUMEthCall(vault.comptrollerProxy, [0, 30, 7, 1]);
-      console.log(aums);
-      const aumNow = Number(ethers.utils.formatEther(aums[0]));
-      const aum30DayAgo = Number(ethers.utils.formatEther(aums[1]));
-      const aum7DayAgo = Number(ethers.utils.formatEther(aums[2]));
-      const aum1DayAgo = Number(ethers.utils.formatEther(aums[3]));
 
-      result.push({
-        address: vault.comptrollerProxy,
-        name: vault.name,
-        aum: aumNow,
-        //aum: 1,
-        denominatedAsset: {
-          name: vault.denominatedAsset["name"],
-          address: vault.denominatedAsset["address"],
-        },
-        thisMonth: percentage(aum30DayAgo, aumNow),
-        thisWeek: percentage(aum7DayAgo, aumNow),
-        thisDay: percentage(aum1DayAgo, aumNow),
-      });
-    }
-    const final = await Promise.all(result);
-    setvaultData(final);
-  };
   const callData = async () => {
-    let result = [];
+    let pageData: pageDataType = {
+      depositorCount: 0,
+      AUMSum: 0,
+      table: [],
+    };
+    let tableResult = [];
     for (let index = 0; index < allFunds["allFunds"].length; index++) {
-      const timestampNowWithMillisecond = new Date().getTime();
-      const timestampNow = Math.floor(timestampNowWithMillisecond / 1000);
-      const timeDeltaInADay = 3600 * 24;
       const vault = allFunds["allFunds"][index];
-      const aumNow = Number(await getAUM(vault.comptrollerProxy));
-      const aum30DayAgo = Number(
-        await getAUM(vault.comptrollerProxy, 30 * timeDeltaInADay)
-      );
-      const aum7DayAgo = Number(
-        await getAUM(vault.comptrollerProxy, 7 * timeDeltaInADay)
-      );
-      const aum1DayAgo = Number(
-        await getAUM(vault.comptrollerProxy, 1 * timeDeltaInADay)
-      );
-      result.push({
-        address: vault.comptrollerProxy,
+      const aumNow = Number(await getAUMByUSDT(vault.vaultProxy));
+      pageData.AUMSum += aumNow;
+      pageData.depositorCount += allFunds["allFunds"][index]["depositors"];
+      let aumChange: number | "-"[] = ["-", "-", "-"]; // 1d ,7d, 30d
+      const now = new Date();
+      for (let index = 0; index < vault["price"].length; index++) {
+        const date = new Date(vault["price"][index]["date"]);
+        if (aumChange[0] === "-") {
+          if (now.getTime() - date.getTime() > 86400) {
+            aumChange[0] = vault["price"][index]["price"];
+          }
+        } else if (aumChange[1] === "-") {
+          if (now.getTime() - date.getTime() > 7 * 86400) {
+            aumChange[1] = vault["price"][index]["price"];
+          }
+        } else if (aumChange[2] === "-") {
+          if (now.getTime() - date.getTime() > 30 * 86400) {
+            aumChange[2] = vault["price"][index]["price"];
+          }
+        } else {
+          break;
+        }
+      }
+      // if (vault["price"][]!== null){
+
+      // }
+
+      tableResult.push({
+        address: vault.vaultProxy,
         name: vault.name,
         aum: aumNow,
         //aum: 1,
@@ -182,30 +217,33 @@ const Vault: NextPageWithLayout = (allFunds) => {
           name: vault.denominatedAsset["name"],
           address: vault.denominatedAsset["address"],
         },
-        thisMonth: percentage(aum30DayAgo, aumNow),
-        thisWeek: percentage(aum7DayAgo, aumNow),
-        thisDay: percentage(aum1DayAgo, aumNow),
+        thisMonth: percentage(aumChange[0], aumNow),
+        thisWeek: percentage(aumChange[1], aumNow),
+        thisDay: percentage(aumChange[2], aumNow),
       });
     }
-    const final = await Promise.all(result);
-    setvaultData(final);
+    pageData.table = await Promise.all(tableResult);
+    setvaultData(pageData);
   };
 
   useEffect(() => {
     callData();
   }, []);
+
   const router = useRouter();
-  const AccountState = useSelector(selectAccountState);
-  const dispatch = useDispatch();
   return (
     <>
       <Head>
         <title>Vaults</title>
       </Head>
       <>
-        <VaultListCard vaultCount={allFunds["allFunds"].length} />
+        <VaultListCard
+          vaultCount={allFunds["allFunds"].length}
+          depositorCount={vaultData.depositorCount}
+          AUMSum={vaultData.AUMSum}
+        />
         <Box mt={50}>
-          <DataTable data={vaultData} columns={VaultColumns} />
+          <DataTable data={vaultData.table} columns={VaultColumns} />
         </Box>
       </>
     </>

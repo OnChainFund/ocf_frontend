@@ -1,95 +1,24 @@
 import type { NextPageWithLayout } from "../../../types/page";
-import { selectAccountState } from "../../../app/store/slices/accountSlice";
-import BasicStatistics from "../../../components/vault/VaultInfo";
-import { useDispatch, useSelector } from "react-redux";
-import { wrapper } from "app/store/store";
 import {
-  Image,
-  Box,
   ChakraProvider,
-  Flex,
-  Stack,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
-  Text,
 } from "@chakra-ui/react";
 import { Layout } from "layouts/layout";
 import { useRouter } from "next/router";
-import { VaultChart } from "components/vault/VaultChart";
-import { DepositButton } from "components/buttons/Deposit";
-import { WithdrawButton } from "components/buttons/Withdraw";
-import { Contract, ethers } from "ethers";
-import VaultLib from "../../../abis/ocf/VaultLib.json";
 import Head from "next/head";
-import { FunctionNotFinished } from "components/FunctionNotFinished";
 import PortFolio from "components/vault/PortFolio";
 import Financials from "components/vault/Financials";
 import Fee from "components/vault/Fee";
 import Policies from "components/vault/Policies";
 import Depositer from "components/vault/Depositer";
-
-export const getServerSideProps = wrapper.getServerSideProps(
-  (store) =>
-    async ({ params }) => {
-      return {
-        props: {
-          authState: false,
-        },
-      };
-    }
-);
-declare let window: any;
-
-const VaultOverview = () => {
-  return (
-    <>
-      <Box w="100%" h="100%">
-        <Box w="100%" h="60%">
-          <Flex>
-            {" "}
-            <Box w="80%">
-              <Stack spacing={1} p={5}>
-                <Box>
-                  <Flex>
-                    <Image
-                      borderRadius="full"
-                      boxSize="40px"
-                      src="https://bit.ly/dan-abramov"
-                      alt="Dan Abramov"
-                    />
-                    <Box ml={5}>
-                      <Text fontSize="2xl">Vault 1</Text>
-                      <Text fontSize="1xl" color="gray">
-                        The Stable Strategy
-                      </Text>
-                    </Box>
-                  </Flex>
-                </Box>
-              </Stack>
-            </Box>
-            <Flex w="40%">
-              <Box p={5}>
-                <DepositButton />
-              </Box>
-              <Box p={5}>
-                <WithdrawButton />
-              </Box>
-            </Flex>
-          </Flex>
-          <Flex>
-            <VaultChart />
-          </Flex>
-        </Box>
-        <Box w="100%" h="40%" mt={10}>
-          <BasicStatistics />
-        </Box>
-      </Box>
-    </>
-  );
-};
+import { VaultOverview } from "components/vault/VaultOverview";
+import client from "apollo-client";
+import { gql, useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
 
 type VaultNav = { name: string; component: any };
 const VaultNavList: Array<VaultNav> = [
@@ -100,11 +29,43 @@ const VaultNavList: Array<VaultNav> = [
   { name: "Policies", component: <Policies /> },
   { name: "Depositers", component: <Depositer /> },
 ];
+const getVaultDetail = (vaultProxyAddress: string) => {
+  console.log(vaultProxyAddress);
+  const query = gql`
+    query ($vaultProxyAddress: String!) {
+      fund(vaultProxy: { eq: $vaultProxyAddress }) {
+        name
+        creator
+        denominatedAsset {
+          name
+          address
+        }
+        vaultProxy
+        comptrollerProxy
+      }
+    }
+  `;
+  return query;
+};
 
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
-
   const { address } = router.query;
+  const [vaultData, setvaultData] = useState({
+    name: "",
+    description: "",
+  });
+  const callData = async () => {
+    const { data } = await client.query({
+      query: getVaultDetail(address as string),
+    });
+    setvaultData({ name: "", description: "" });
+  };
+
+  useEffect(() => {
+    callData();
+  }, []);
+
   return (
     <>
       <Head>
