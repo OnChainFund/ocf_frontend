@@ -4,6 +4,7 @@ import { DepositButton } from "components/buttons/Deposit";
 import { WithdrawButton } from "components/buttons/Withdraw";
 import BasicStatistics from "components/vault/VaultInfo";
 interface Props {
+  priceChartData: [];
   name: string;
   description: string;
   aum: number;
@@ -49,7 +50,7 @@ export const VaultOverview = (props: Props) => {
             </Flex>
           </Flex>
           <Flex>
-            <VaultChart />
+            <VaultChart priceChartData={props.priceChartData} />
           </Flex>
         </Box>
         <Box w="100%" h="40%" mt={10}>

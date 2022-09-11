@@ -22,25 +22,31 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
-  responsive: true,
-  plugins: {},
-};
-
-const labels = ["January", "February", "March", "April", "May", "June", "July"];
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "price",
-      data: labels.map(() => faker.datatype.number({ min: 500, max: 1000 })),
-      borderColor: "rgb(255, 99, 132)",
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
-    },
-  ],
-};
-
-export function VaultChart() {
-  return <Line options={options} data={data} height={"80%"} />;
+interface Props {
+  priceChartData: [];
 }
+export const VaultChart = (props: Props) => {
+  const priceChartData = props.priceChartData;
+  let labels = [];
+  let values = [];
+  for (let index = 0; index < priceChartData.length; index++) {
+    labels.push(priceChartData[index]["date"]);
+    values.push(priceChartData[index]["navPerShare"]);
+  }
+  const options = {
+    responsive: true,
+    plugins: {},
+  };
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "price",
+        data: values,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
+  return <Line options={options} data={data} height={"80%"} />;
+};

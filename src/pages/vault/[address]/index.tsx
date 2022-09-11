@@ -105,7 +105,7 @@ const Vault: NextPageWithLayout = () => {
       name: "Overview",
       component: (
         <VaultOverview
-          key={data["fund"]["name"]}
+          priceChartData={data["fund"]["price"]}
           name={data["fund"]["name"]}
           description={data["fund"]["description"]}
           aum={vaultData.AUM}
