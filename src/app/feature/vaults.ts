@@ -71,6 +71,20 @@ export async function getAUMByUSDT(vaultProxy: string) {
   return ethers.utils.formatEther(tx);
 }
 
+export async function getNavPerShareByUSDT(vaultProxy: string) {
+  const contract = new ethers.Contract(
+    Addresses.ocf.FundValueCalculator,
+    FundValueCalculator["abi"],
+    nodeProvider
+  );
+
+  const tx = await contract.callStatic.calcNetShareValueInAsset(
+    vaultProxy,
+    Addresses.USDT
+  );
+  return ethers.utils.formatEther(tx);
+}
+
 export async function getPriceVaryPercentage(
   days: number,
   comptrollerProxy: string

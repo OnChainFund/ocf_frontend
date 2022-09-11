@@ -19,7 +19,7 @@ import { VaultOverview } from "components/vault/VaultOverview";
 import client from "apollo-client";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
-import { getAUMByUSDT } from "app/feature/vaults";
+import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 
 type VaultNav = { name: string; component: any };
 
@@ -45,43 +45,72 @@ const GET_VAULT_DETAIL = gql`
   }
 `;
 function getAverageMonthlyReturn(
-  sharePrice: number,
+  sharePriceNow: number,
   sharePriceOrigin: number,
-  times: number
-) {}
+  date: string
+) {
+  // 獲取時間差
+  const timeDelta = new Date().getTime() - new Date(date).getTime();
+
+  // 獲取價格差
+  // 計算 價格差/平均一個月的時間差
+  const averageMonthlyReturn =
+    (sharePriceNow - sharePriceOrigin) / (timeDelta / 2592000);
+  return averageMonthlyReturn;
+}
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
   const { address } = router.query;
   const [vaultData, setvaultData] = useState({
     AUM: 0,
+    navPerShare: 0,
+    navAverageMonthReturn: 0,
+    navAverageMonthGrowth: 0,
   });
   const callData = async () => {
-    const aumNow = Number(await getAUMByUSDT(address as string));
-    setvaultData({ AUM: aumNow });
+    const aum = Number(await getAUMByUSDT(address as string));
+    const navPerShare = Number(await getNavPerShareByUSDT(address as string));
+    const navAverageMonthReturn = getAverageMonthlyReturn(
+      navPerShare,
+      data["fund"]["price"][0]["navPerShare"],
+      data["fund"]["price"][0]["date"]
+    );
+    const navAverageMonthGrowth =
+      (navAverageMonthReturn / data["fund"]["price"][0]["navPerShare"]) * 100;
+    const vaultData = {
+      AUM: aum,
+      navPerShare: navPerShare,
+      navAverageMonthReturn: navAverageMonthReturn,
+      navAverageMonthGrowth: navAverageMonthGrowth,
+    };
+    setvaultData(vaultData);
   };
-  useEffect(() => {
-    if (!router.isReady) return;
-    callData();
-  }, []);
   const { data, loading, error } = useQuery(GET_VAULT_DETAIL, {
     variables: { address },
   });
-  if (loading) {
+  useEffect(() => {
+    if (loading || !router.isReady) return;
+    callData();
+  }, [router, loading]);
+
+  if (loading || !router.isReady) {
     return <>loading</>;
   }
   if (error) {
     return <>error</>;
   }
-  console.log(data["fund"]["depositors"]);
+  console.log(vaultData.AUM);
   const VaultNavList: Array<VaultNav> = [
     {
       name: "Overview",
       component: (
         <VaultOverview
+          key={data["fund"]["name"]}
           name={data["fund"]["name"]}
           description={data["fund"]["description"]}
           aum={vaultData.AUM}
-          averageMonthlyReturn={0}
+          averageMonthlyReturn={vaultData.navAverageMonthReturn}
+          averageMonthlyGrowth={vaultData.navAverageMonthGrowth}
           denominatedAssetName={data["fund"]["denominatedAsset"]["name"]}
           depositers={data["fund"]["depositors"]}
         />

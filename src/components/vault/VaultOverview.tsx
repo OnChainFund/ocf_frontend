@@ -8,6 +8,7 @@ interface Props {
   description: string;
   aum: number;
   averageMonthlyReturn: number;
+  averageMonthlyGrowth: number;
   denominatedAssetName: string;
   depositers: number;
 }
@@ -55,6 +56,7 @@ export const VaultOverview = (props: Props) => {
           <BasicStatistics
             aum={props.aum}
             averageMonthlyReturn={props.averageMonthlyReturn}
+            averageMonthlyGrowth={props.averageMonthlyGrowth}
             denominatedAssetName={props.denominatedAssetName}
             depositers={props.depositers}
           />

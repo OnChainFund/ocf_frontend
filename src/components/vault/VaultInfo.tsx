@@ -35,6 +35,7 @@ function StatsCard(props: StatsCardProps) {
 interface Props {
   aum: number;
   averageMonthlyReturn: number;
+  averageMonthlyGrowth: number;
   depositers: number;
   denominatedAssetName: string;
 }
@@ -65,9 +66,7 @@ export default function BasicStatistics(props: Props) {
           rounded={"lg"}
         >
           <StatLabel>{"Depositors"}</StatLabel>
-          <StatNumber>
-            {props.depositers}
-          </StatNumber>
+          <StatNumber>{props.depositers}</StatNumber>
         </Stat>
 
         <Stat
@@ -81,11 +80,14 @@ export default function BasicStatistics(props: Props) {
           <StatLabel>{"Average Monthly Return"}</StatLabel>
           <StatNumber>
             {"$"}
-            {props.averageMonthlyReturn}
+            {props.averageMonthlyReturn.toFixed(2)}
           </StatNumber>
           <StatHelpText>
-            <StatArrow type="increase" />
-            {"-9.81%"}
+            <StatArrow
+              type={props.averageMonthlyGrowth >= 0 ? "increase" : "decrease"}
+            />
+            {props.averageMonthlyGrowth.toFixed(2)}
+            {"%"}
           </StatHelpText>
         </Stat>
         <StatsCard
