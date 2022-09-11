@@ -6,6 +6,10 @@ import BasicStatistics from "components/vault/VaultInfo";
 interface Props {
   name: string;
   description: string;
+  aum: number;
+  averageMonthlyReturn: number;
+  denominatedAssetName: string;
+  depositers: number;
 }
 export const VaultOverview = (props: Props) => {
   return (
@@ -48,7 +52,12 @@ export const VaultOverview = (props: Props) => {
           </Flex>
         </Box>
         <Box w="100%" h="40%" mt={10}>
-          <BasicStatistics />
+          <BasicStatistics
+            aum={props.aum}
+            averageMonthlyReturn={props.averageMonthlyReturn}
+            denominatedAssetName={props.denominatedAssetName}
+            depositers={props.depositers}
+          />
         </Box>
       </Box>
     </>

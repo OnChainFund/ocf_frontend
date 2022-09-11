@@ -1,9 +1,7 @@
 import Head from "next/head";
 import type { NextPageWithLayout } from "../../types/page";
-import { selectAccountState } from "../../app/store/slices/accountSlice";
-import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { Box, ChakraProvider, Text } from "@chakra-ui/react";
+import { Box, ChakraProvider } from "@chakra-ui/react";
 import { Layout } from "layouts/layout";
 import { DataTable } from "components/DataTable";
 import VaultListCard from "components/vaults/VaultListCard";
@@ -11,9 +9,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql } from "@apollo/client";
 import client from "../../apollo-client";
-import { getAUM, getAUMByUSDT } from "app/feature/vaults";
+import { getAUMByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
-import { ethers } from "ethers";
 // vault
 type VaultType = {
   address: string;
@@ -51,7 +48,7 @@ export async function getServerSideProps() {
           comptrollerProxy
           price {
             date
-            price
+            gav
           }
           depositors
         }
@@ -67,7 +64,7 @@ export async function getServerSideProps() {
 }
 
 const Vault: NextPageWithLayout = (funds) => {
-  const [vaultData, setvaultData] = useState({
+  const [vaultsData, setvaultsData] = useState({
     depositorCount: 0,
     AUMSum: 0,
     table: [],
@@ -190,15 +187,15 @@ const Vault: NextPageWithLayout = (funds) => {
         const date = new Date(vault["price"][index]["date"]);
         if (aumChange[0] === "-") {
           if (now.getTime() - date.getTime() > 86400) {
-            aumChange[0] = vault["price"][index]["price"];
+            aumChange[0] = vault["price"][index]["gav"];
           }
         } else if (aumChange[1] === "-") {
           if (now.getTime() - date.getTime() > 7 * 86400) {
-            aumChange[1] = vault["price"][index]["price"];
+            aumChange[1] = vault["price"][index]["gav"];
           }
         } else if (aumChange[2] === "-") {
           if (now.getTime() - date.getTime() > 30 * 86400) {
-            aumChange[2] = vault["price"][index]["price"];
+            aumChange[2] = vault["price"][index]["gav"];
           }
         } else {
           break;
@@ -223,7 +220,7 @@ const Vault: NextPageWithLayout = (funds) => {
       });
     }
     pageData.table = await Promise.all(tableResult);
-    setvaultData(pageData);
+    setvaultsData(pageData);
   };
 
   useEffect(() => {
@@ -239,11 +236,11 @@ const Vault: NextPageWithLayout = (funds) => {
       <>
         <VaultListCard
           vaultCount={funds["funds"].length}
-          depositorCount={vaultData.depositorCount}
-          AUMSum={vaultData.AUMSum}
+          depositorCount={vaultsData.depositorCount}
+          AUMSum={vaultsData.AUMSum}
         />
         <Box mt={50}>
-          <DataTable data={vaultData.table} columns={VaultColumns} />
+          <DataTable data={vaultsData.table} columns={VaultColumns} />
         </Box>
       </>
     </>

@@ -34,6 +34,9 @@ function StatsCard(props: StatsCardProps) {
 }
 interface Props {
   aum: number;
+  averageMonthlyReturn: number;
+  depositers: number;
+  denominatedAssetName: string;
 }
 export default function BasicStatistics(props: Props) {
   return (
@@ -48,13 +51,25 @@ export default function BasicStatistics(props: Props) {
           rounded={"lg"}
         >
           <StatLabel>{"Assets Under Management"}</StatLabel>
-          <StatNumber>{props.aum}</StatNumber>
-          <StatHelpText>
-            <StatArrow type="increase" />
-            23.36%
-          </StatHelpText>
+          <StatNumber>
+            {"$"}
+            {props.aum.toFixed(2)}
+          </StatNumber>
         </Stat>
-        <StatsCard title={"Depositors"} stat={"147"} />
+        <Stat
+          px={{ base: 4, md: 8 }}
+          py={"2"}
+          shadow={"xl"}
+          border={"1px solid"}
+          borderColor={useColorModeValue("gray.800", "gray.500")}
+          rounded={"lg"}
+        >
+          <StatLabel>{"Depositors"}</StatLabel>
+          <StatNumber>
+            {props.depositers}
+          </StatNumber>
+        </Stat>
+
         <Stat
           px={{ base: 4, md: 8 }}
           py={"2"}
@@ -64,13 +79,19 @@ export default function BasicStatistics(props: Props) {
           rounded={"lg"}
         >
           <StatLabel>{"Average Monthly Return"}</StatLabel>
-          <StatNumber>{"$2080"}</StatNumber>
+          <StatNumber>
+            {"$"}
+            {props.averageMonthlyReturn}
+          </StatNumber>
           <StatHelpText>
             <StatArrow type="increase" />
             {"-9.81%"}
           </StatHelpText>
         </Stat>
-        <StatsCard title={"Denomination Asset"} stat={"DAI"} />
+        <StatsCard
+          title={"Denomination Asset"}
+          stat={props.denominatedAssetName}
+        />
       </SimpleGrid>
     </Box>
   );

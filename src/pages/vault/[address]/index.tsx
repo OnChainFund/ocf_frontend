@@ -19,6 +19,7 @@ import { VaultOverview } from "components/vault/VaultOverview";
 import client from "apollo-client";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { getAUMByUSDT } from "app/feature/vaults";
 
 type VaultNav = { name: string; component: any };
 
@@ -36,16 +37,32 @@ const GET_VAULT_DETAIL = gql`
       description
       vaultProxy
       price {
-        price
+        gav
+        navPerShare
         date
       }
     }
   }
 `;
-
+function getAverageMonthlyReturn(
+  sharePrice: number,
+  sharePriceOrigin: number,
+  times: number
+) {}
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
   const { address } = router.query;
+  const [vaultData, setvaultData] = useState({
+    AUM: 0,
+  });
+  const callData = async () => {
+    const aumNow = Number(await getAUMByUSDT(address as string));
+    setvaultData({ AUM: aumNow });
+  };
+  useEffect(() => {
+    if (!router.isReady) return;
+    callData();
+  }, []);
   const { data, loading, error } = useQuery(GET_VAULT_DETAIL, {
     variables: { address },
   });
@@ -55,7 +72,7 @@ const Vault: NextPageWithLayout = () => {
   if (error) {
     return <>error</>;
   }
-
+  console.log(data["fund"]["depositors"]);
   const VaultNavList: Array<VaultNav> = [
     {
       name: "Overview",
@@ -63,6 +80,10 @@ const Vault: NextPageWithLayout = () => {
         <VaultOverview
           name={data["fund"]["name"]}
           description={data["fund"]["description"]}
+          aum={vaultData.AUM}
+          averageMonthlyReturn={0}
+          denominatedAssetName={data["fund"]["denominatedAsset"]["name"]}
+          depositers={data["fund"]["depositors"]}
         />
       ),
     },
