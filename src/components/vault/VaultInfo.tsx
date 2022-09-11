@@ -32,8 +32,10 @@ function StatsCard(props: StatsCardProps) {
     </Stat>
   );
 }
-
-export default function BasicStatistics() {
+interface Props {
+  aum: number;
+}
+export default function BasicStatistics(props: Props) {
   return (
     <Box maxW="7xl" mx={"auto"} pt={5} px={{ base: 2, sm: 12, md: 17 }}>
       <SimpleGrid columns={{ base: 1, md: 4 }} spacing={{ base: 5, lg: 8 }}>
@@ -46,7 +48,7 @@ export default function BasicStatistics() {
           rounded={"lg"}
         >
           <StatLabel>{"Assets Under Management"}</StatLabel>
-          <StatNumber>{"$1,192,133.30"}</StatNumber>
+          <StatNumber>{props.aum}</StatNumber>
           <StatHelpText>
             <StatArrow type="increase" />
             23.36%

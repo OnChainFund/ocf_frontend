@@ -19,7 +19,7 @@ async function getVaultData() {
   const { data } = await client.query({
     query: gql`
       query {
-        allFunds {
+        funds {
           name
           creator
           vaultProxy
@@ -96,8 +96,8 @@ export async function getPriceVaryPercentage(
 }
 
 export async function getVaultTableData() {
-  const allFunds = await getVaultData();
-  const data: VaultType[] = await allFunds["allFunds"].map(async (vault) => ({
+  const funds = await getVaultData();
+  const data: VaultType[] = await funds["funds"].map(async (vault) => ({
     address: vault.comptrollerProxy,
     name: vault.name,
     aum: await getAUM(vault.comptrollerProxy),

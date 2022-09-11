@@ -40,7 +40,7 @@ export async function getServerSideProps() {
   const { data } = await client.query({
     query: gql`
       query {
-        allFunds {
+        funds {
           name
           creator
           denominatedAsset {
@@ -61,18 +61,18 @@ export async function getServerSideProps() {
 
   return {
     props: {
-      allFunds: data.allFunds,
+      funds: data.funds,
     },
   };
 }
 
-const Vault: NextPageWithLayout = (allFunds) => {
+const Vault: NextPageWithLayout = (funds) => {
   const [vaultData, setvaultData] = useState({
     depositorCount: 0,
     AUMSum: 0,
     table: [],
   });
-  
+
   const VaultColumns = [
     columnHelper.accessor("address", {
       cell: (info) => {
@@ -179,11 +179,11 @@ const Vault: NextPageWithLayout = (allFunds) => {
       table: [],
     };
     let tableResult = [];
-    for (let index = 0; index < allFunds["allFunds"].length; index++) {
-      const vault = allFunds["allFunds"][index];
+    for (let index = 0; index < funds["funds"].length; index++) {
+      const vault = funds["funds"][index];
       const aumNow = Number(await getAUMByUSDT(vault.vaultProxy));
       pageData.AUMSum += aumNow;
-      pageData.depositorCount += allFunds["allFunds"][index]["depositors"];
+      pageData.depositorCount += funds["funds"][index]["depositors"];
       let aumChange: number | "-"[] = ["-", "-", "-"]; // 1d ,7d, 30d
       const now = new Date();
       for (let index = 0; index < vault["price"].length; index++) {
@@ -238,7 +238,7 @@ const Vault: NextPageWithLayout = (allFunds) => {
       </Head>
       <>
         <VaultListCard
-          vaultCount={allFunds["allFunds"].length}
+          vaultCount={funds["funds"].length}
           depositorCount={vaultData.depositorCount}
           AUMSum={vaultData.AUMSum}
         />

@@ -21,10 +21,18 @@ import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 
 type VaultNav = { name: string; component: any };
+const VaultNavList: Array<VaultNav> = [
+  { name: "Overview", component: <VaultOverview /> },
+  { name: "Portflio", component: <PortFolio /> },
+  { name: "Financials", component: <Financials /> },
+  { name: "Fees", component: <Fee /> },
+  { name: "Policies", component: <Policies /> },
+  { name: "Depositers", component: <Depositer /> },
+];
 
 const GET_VAULT_DETAIL = gql`
-  query MyQuery($address: ID!) {
-    fund(pk: $address) {
+  query MyQuery {
+    fund(pk: "0x02b7a6d41F929a2d09D6dd8aF5537c1d1fe2E678") {
       name
       creator
       comptrollerProxy
@@ -46,32 +54,15 @@ const GET_VAULT_DETAIL = gql`
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
   const { address } = router.query;
-  const { data, loading, error } = useQuery(GET_VAULT_DETAIL, {
-    variables: { address },
-  });
+  const { data, loading, error } = useQuery(GET_VAULT_DETAIL);
   if (loading) {
     return <>loading</>;
   }
   if (error) {
     return <>error</>;
   }
+  console.log(data);
 
-  const VaultNavList: Array<VaultNav> = [
-    {
-      name: "Overview",
-      component: (
-        <VaultOverview
-          name={data["fund"]["name"]}
-          description={data["fund"]["description"]}
-        />
-      ),
-    },
-    { name: "Portflio", component: <PortFolio /> },
-    { name: "Financials", component: <Financials /> },
-    { name: "Fees", component: <Fee /> },
-    { name: "Policies", component: <Policies /> },
-    { name: "Depositers", component: <Depositer /> },
-  ];
   return (
     <>
       <Head>
@@ -84,11 +75,27 @@ const Vault: NextPageWithLayout = () => {
           ))}
         </TabList>
         <TabPanels h="100%">
-          {VaultNavList.map((nav) => (
-            <TabPanel h="100%" key={nav.name}>
-              {nav.component}
-            </TabPanel>
-          ))}
+          <TabPanel h="100%" key="Overview">
+            <VaultOverview
+              name={data["fund"]["name"]}
+              description={data["fund"]["description"]}
+            />
+          </TabPanel>
+          <TabPanel h="100%" key="Portflio">
+            <PortFolio />
+          </TabPanel>
+          <TabPanel h="100%" key="Financials">
+            <Financials />
+          </TabPanel>
+          <TabPanel h="100%" key="Fees">
+            <Fee />
+          </TabPanel>
+          <TabPanel h="100%" key="Policies">
+            <Policies />
+          </TabPanel>
+          <TabPanel h="100%" key="Depositers">
+            <Depositer />
+          </TabPanel>
         </TabPanels>
       </Tabs>
     </>
