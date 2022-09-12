@@ -82,20 +82,25 @@ export default function PortFolio() {
     const ethcallProvider = new Provider();
     await ethcallProvider.init(nodeProvider);
     // 獲取各個 token balance
+    const assetData = data["assets"];
     let txRequestArray = [];
     let txResultArray = [];
-
     for (let index = 0; index < data["assets"].length; index++) {
-      const asset = data["assets"][index];
+      const asset = assetData[index];
       const assetContract = new Contract(asset["address"], ERC20ABI["abi"]);
-      const assetBalanceCall = assetContract.balanceOf(address);
+      const assetBalanceCall = assetContract.balanceOf(
+        "0x02b7a6d41F929a2d09D6dd8aF5537c1d1fe2E678"
+      );
       txRequestArray.push(assetBalanceCall);
+      if ((index + 1) % 6 === 0) {
+        txResultArray.push(...(await ethcallProvider.all(txRequestArray)));
+        txRequestArray = [];
+      }
     }
-    if (txRequestArray.length > 0) {
-      console.log(txRequestArray.length);
-      txResultArray = await ethcallProvider.all(txRequestArray);
-      console.log(txResultArray);
-    }
+
+    //txRequestArray = [];
+    //txResultArray.push(await ethcallProvider.all(txRequestArray));
+    console.log(txResultArray);
     setVaultTokenData([]);
   };
   useEffect(() => {
