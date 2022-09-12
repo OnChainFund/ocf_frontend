@@ -9,7 +9,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql } from "@apollo/client";
 import client from "../../apollo-client";
-import { getAUMByUSDT } from "app/feature/vaults";
+import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
 // vault
 type VaultType = {
@@ -20,6 +20,7 @@ type VaultType = {
     name: string;
     address: string;
   };
+  price: number;
   thisMonth: number | "-";
   thisWeek: number | "-";
   thisDay: number | "-";
@@ -49,6 +50,7 @@ export async function getServerSideProps() {
           price {
             date
             gav
+            navPerShare
           }
           depositors
         }
@@ -95,6 +97,10 @@ const Vault: NextPageWithLayout = (funds) => {
     columnHelper.accessor("denominatedAsset", {
       cell: (info) => info.getValue().name,
       header: "准入資產",
+    }),
+    columnHelper.accessor("price", {
+      cell: (info) => Number(info.getValue()).toFixed(2),
+      header: "Share Price(USDT)",
     }),
     columnHelper.accessor("thisMonth", {
       cell: (info) => (
@@ -180,6 +186,8 @@ const Vault: NextPageWithLayout = (funds) => {
       const vault = funds["funds"][index];
       const aumNow = Number(await getAUMByUSDT(vault.vaultProxy));
       pageData.AUMSum += aumNow;
+      const priceNow = Number(await getNavPerShareByUSDT(vault.vaultProxy));
+
       pageData.depositorCount += funds["funds"][index]["depositors"];
       let aumChange: number | "-"[] = ["-", "-", "-"]; // 1d ,7d, 30d
       const now = new Date();
@@ -214,6 +222,7 @@ const Vault: NextPageWithLayout = (funds) => {
           name: vault.denominatedAsset["name"],
           address: vault.denominatedAsset["address"],
         },
+        price: priceNow,
         thisMonth: percentage(aumChange[0], aumNow),
         thisWeek: percentage(aumChange[1], aumNow),
         thisDay: percentage(aumChange[2], aumNow),

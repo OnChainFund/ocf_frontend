@@ -24,7 +24,7 @@ import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 type VaultNav = { name: string; component: any };
 
 const GET_VAULT_DETAIL = gql`
-  query MyQuery($address: ID!) {
+  query GET_VAULT_DETAIL($address: ID!) {
     fund(pk: $address) {
       name
       creator
@@ -61,7 +61,7 @@ function getAverageMonthlyReturn(
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
   const { address } = router.query;
-  const [vaultData, setvaultData] = useState({
+  const [vaultData, setVaultData] = useState({
     AUM: 0,
     navPerShare: 0,
     navAverageMonthReturn: 0,
@@ -83,13 +83,13 @@ const Vault: NextPageWithLayout = () => {
       navAverageMonthReturn: navAverageMonthReturn,
       navAverageMonthGrowth: navAverageMonthGrowth,
     };
-    setvaultData(vaultData);
+    setVaultData(vaultData);
   };
   const { data, loading, error } = useQuery(GET_VAULT_DETAIL, {
     variables: { address },
   });
   useEffect(() => {
-    if (loading || !router.isReady) return;
+    if (loading || error || !router.isReady) return;
     callData();
   }, [router, loading]);
 
@@ -99,7 +99,7 @@ const Vault: NextPageWithLayout = () => {
   if (error) {
     return <>error</>;
   }
-  console.log(vaultData.AUM);
+
   const VaultNavList: Array<VaultNav> = [
     {
       name: "Overview",

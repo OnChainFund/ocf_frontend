@@ -8,9 +8,9 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { faker } from "@faker-js/faker";
 
 ChartJS.register(
   CategoryScale,
@@ -19,6 +19,7 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
+  Filler,
   Legend
 );
 
@@ -35,7 +36,15 @@ export const VaultChart = (props: Props) => {
   }
   const options = {
     responsive: true,
-    plugins: {},
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Price Chart",
+      },
+    },
   };
   const data = {
     labels,
@@ -43,8 +52,8 @@ export const VaultChart = (props: Props) => {
       {
         label: "price",
         data: values,
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
+        borderColor: "rgb(53, 162, 235)",
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
       },
     ],
   };
