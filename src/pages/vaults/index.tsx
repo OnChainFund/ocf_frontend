@@ -7,7 +7,7 @@ import { DataTable } from "components/DataTable";
 import VaultListCard from "components/vaults/VaultListCard";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { gql } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import client from "../../apollo-client";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
@@ -38,7 +38,9 @@ const GET_VAULTS_QUERY = gql`
   query {
     funds {
       name
-      creator
+      creator {
+        pk
+      }
       denominatedAsset {
         name
         address
@@ -50,48 +52,31 @@ const GET_VAULTS_QUERY = gql`
         gav
         navPerShare
       }
-      depositors
+      depositorCount
     }
   }
 `;
-export async function getServerSideProps() {
-  const { data } = await client.query({
-    query: gql`
-      query {
-        funds {
-          name
-          creator
-          denominatedAsset {
-            name
-            address
-          }
-          vaultProxy
-          comptrollerProxy
-          price {
-            date
-            gav
-            navPerShare
-          }
-          depositors
-        }
-      }
-    `,
-  });
 
-  return {
-    props: {
-      funds: data.funds,
-    },
-  };
-}
-
-const Vault: NextPageWithLayout = (funds) => {
+const Vault: NextPageWithLayout = () => {
   const [vaultsData, setvaultsData] = useState({
     depositorCount: 0,
     AUMSum: 0,
     table: [],
   });
+  const { data, loading, error } = useQuery(GET_VAULTS_QUERY);
+  const router = useRouter();
+  useEffect(() => {
+    if (loading || error) return;
+    callData();
+  }, [router, loading]);
 
+  if (loading) {
+    return <>loading</>;
+  }
+  if (error) {
+    return <>error</>;
+  }
+  console.log(data.funds.length);
   const VaultColumns = [
     columnHelper.accessor("address", {
       cell: (info) => {
@@ -194,7 +179,6 @@ const Vault: NextPageWithLayout = (funds) => {
       }
     }
   }
-
   const callData = async () => {
     let pageData: pageDataType = {
       depositorCount: 0,
@@ -202,45 +186,45 @@ const Vault: NextPageWithLayout = (funds) => {
       table: [],
     };
     let tableResult = [];
-    for (let index = 0; index < funds["funds"].length; index++) {
-      const vault = funds["funds"][index];
-      const aumNow = Number(await getAUMByUSDT(vault.vaultProxy));
-      pageData.AUMSum += aumNow;
-      const priceNow = Number(await getNavPerShareByUSDT(vault.vaultProxy));
 
-      pageData.depositorCount += funds["funds"][index]["depositors"];
+    for (let index = 0; index < data.funds.length; index++) {
+      const fund = data.funds[index];
+      const aumNow = Number(await getAUMByUSDT(fund.vaultProxy));
+      pageData.AUMSum += aumNow;
+      const priceNow = Number(await getNavPerShareByUSDT(fund.vaultProxy));
+
       let aumChange: number | "-"[] = ["-", "-", "-"]; // 1d ,7d, 30d
       const now = new Date();
-      for (let index = 0; index < vault["price"].length; index++) {
-        const date = new Date(vault["price"][index]["date"]);
+      for (let index = 0; index < fund["price"].length; index++) {
+        const date = new Date(fund["price"][index]["date"]);
         if (aumChange[0] === "-") {
           if (now.getTime() - date.getTime() > 86400) {
-            aumChange[0] = vault["price"][index]["gav"];
+            aumChange[0] = fund["price"][index]["gav"];
           }
         } else if (aumChange[1] === "-") {
           if (now.getTime() - date.getTime() > 7 * 86400) {
-            aumChange[1] = vault["price"][index]["gav"];
+            aumChange[1] = fund["price"][index]["gav"];
           }
         } else if (aumChange[2] === "-") {
           if (now.getTime() - date.getTime() > 30 * 86400) {
-            aumChange[2] = vault["price"][index]["gav"];
+            aumChange[2] = fund["price"][index]["gav"];
           }
         } else {
           break;
         }
       }
-      // if (vault["price"][]!== null){
+      // if (fund["price"][]!== null){
 
       // }
 
       tableResult.push({
-        address: vault.vaultProxy,
-        name: vault.name,
+        address: fund.fundProxy,
+        name: fund.name,
         aum: aumNow,
         //aum: 1,
         denominatedAsset: {
-          name: vault.denominatedAsset["name"],
-          address: vault.denominatedAsset["address"],
+          name: fund.denominatedAsset["name"],
+          address: fund.denominatedAsset["address"],
         },
         price: priceNow,
         thisMonth: percentage(aumChange[0], aumNow),
@@ -252,11 +236,6 @@ const Vault: NextPageWithLayout = (funds) => {
     setvaultsData(pageData);
   };
 
-  useEffect(() => {
-    callData();
-  }, []);
-
-  const router = useRouter();
   return (
     <>
       <Head>
@@ -264,7 +243,7 @@ const Vault: NextPageWithLayout = (funds) => {
       </Head>
       <>
         <VaultListCard
-          vaultCount={funds["funds"].length}
+          vaultCount={data.funds.length}
           depositorCount={vaultsData.depositorCount}
           AUMSum={vaultsData.AUMSum}
         />
@@ -276,12 +255,6 @@ const Vault: NextPageWithLayout = (funds) => {
   );
 };
 
-Vault.getLayout = function getLayout(page) {
-  return (
-    <ChakraProvider>
-      <Layout>{page}</Layout>
-    </ChakraProvider>
-  );
-};
+
 
 export default Vault;

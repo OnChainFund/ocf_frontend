@@ -1,16 +1,12 @@
-import { ReactNode } from "react";
 import {
   Box,
   Flex,
   HStack,
   Link,
-  Button,
   useDisclosure,
   useColorModeValue,
-  Stack,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
-import { ConnectToMetaMask } from "../components/buttons/ConnectToMetaMask";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 type LinkBarItem = {
   name: string;
   link: string;
@@ -21,6 +17,7 @@ const Links: LinkBarItem[] = [
   { name: "Vault", link: "/vault" },
   { name: "Manager", link: "/manager" },
   { name: "Docs", link: "https://onchainfund.github.io/doc/" },
+  { name: "Testing Page", link: "/test" },
 ];
 
 interface NavLinkProps {
@@ -68,7 +65,7 @@ export default function NavBar() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"} w="30%">
-            <ConnectToMetaMask />
+            <ConnectButton />
           </Flex>
         </Flex>
 

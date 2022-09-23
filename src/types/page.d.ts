@@ -3,6 +3,6 @@ import { ComponentType, ReactElement, ReactNode } from "react";
 
 export type NextPageWithLayout<P = {}> = NextPage<P> & {
   // You can disable whichever you don't need
-  getLayout?: (page: ReactElement) => ReactNode;
+  //getLayout?: (page: ReactElement) => ReactNode;
   // layout?: ComponentType;
 };

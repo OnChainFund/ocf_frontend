@@ -33,8 +33,6 @@ const Home: NextPageWithLayout = () => {
   );
 };
 
-Home.getLayout = function getLayout(page) {
-  return <ChakraProvider>{page}</ChakraProvider>;
-};
+
 
 export default Home;

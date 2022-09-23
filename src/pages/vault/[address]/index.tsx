@@ -148,12 +148,6 @@ const Vault: NextPageWithLayout = () => {
   );
 };
 
-Vault.getLayout = function getLayout(page) {
-  return (
-    <ChakraProvider>
-      <Layout>{page}</Layout>
-    </ChakraProvider>
-  );
-};
+
 
 export default Vault;
