@@ -15,7 +15,7 @@ import { WagmiConfig, createClient, configureChains, Chain } from "wagmi";
 
 import { publicProvider } from "wagmi/providers/public";
 import { useStore } from "react-redux";
-import { Layout } from "layouts/layout";
+import { Layout } from "layouts/LayoutProvider";
 
 const fuji = {
   id: 43113,

@@ -7,7 +7,7 @@ import {
   TabPanels,
   Tabs,
 } from "@chakra-ui/react";
-import { Layout } from "layouts/layout";
+import { Layout } from "layouts/LayoutProvider";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import PortFolio from "components/vault/PortFolio";

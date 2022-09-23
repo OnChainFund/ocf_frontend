@@ -17,7 +17,7 @@ import {
   Text,
   chakra,
 } from "@chakra-ui/react";
-import { Layout } from "layouts/layout";
+import { Layout } from "layouts/LayoutProvider";
 import { useRouter } from "next/router";
 import { VaultChart } from "components/vault/VaultChart";
 import { DepositButton } from "components/buttons/Deposit";

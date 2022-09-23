@@ -2,7 +2,7 @@ import Head from "next/head";
 import type { NextPageWithLayout } from "../../types/page";
 import { useRouter } from "next/router";
 import { Box, ChakraProvider } from "@chakra-ui/react";
-import { Layout } from "layouts/layout";
+import { Layout } from "layouts/LayoutProvider";
 import { DataTable } from "components/DataTable";
 import VaultListCard from "components/vaults/VaultListCard";
 import { createColumnHelper } from "@tanstack/react-table";

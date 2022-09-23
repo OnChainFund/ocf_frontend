@@ -64,8 +64,8 @@ export default function NavBar() {
               ))}
             </HStack>
           </HStack>
-          <Flex alignItems={"center"} w="30%">
-            <ConnectButton />
+          <Flex alignItems={"right"} w="20%">
+            <ConnectButton label="Connect to Wallet" chainStatus="name" />
           </Flex>
         </Flex>
 
