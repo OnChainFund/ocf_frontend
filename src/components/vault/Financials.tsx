@@ -10,9 +10,15 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { stringify } from "querystring";
+import { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
-
+import { nodeProvider } from "app/feature/basic";
+import { Addresses } from "abis/ocf/Address";
+import { default as FundValueCalculator } from "abis/ocf/FundValueCalculator.json";
+import { default as ERC20 } from "abis/ERC20.json";
+import { ethers } from "ethers";
 const options = [
   { id: 1, desc: "1 lorem ipsum" },
   { id: 2, desc: "Lorem, ipsum dolor." },
@@ -74,42 +80,93 @@ const ValueCard = ({
       <Divider />
       <ValueItem
         title={"Gross Asset Value (GAV)"}
-        content={gav.toString() + denominatedAssetName}
+        content={toPresentNumber(gav) + "\t\t\t" + denominatedAssetName}
         options={options}
       />
       <Divider />
       <ValueItem
         title={"Net Asset Value (NAV)"}
-        content={nav.toString() + denominatedAssetName}
+        content={toPresentNumber(nav) + "\t\t\t" + denominatedAssetName}
         options={options}
       />
       <Divider />
       <ValueItem
         title={"Share Supply"}
-        content={supply.toString() + tokenName}
+        content={toPresentNumber(supply) + "\t\t\t" + tokenName}
         options={options}
       />
       <Divider />
       <ValueItem
         title={"Share Price"}
-        content={price.toString() + denominatedAssetName}
+        content={toPresentNumber(price) + "\t\t\t" + denominatedAssetName}
         options={options}
       />
     </>
   );
 };
-const Fianacials = () => {
+function toPresentNumber(value: number) {
+  return (value / 1e18).toFixed(2);
+}
+interface Prop {
+  name: string;
+}
+const Fianacials = (props: Prop) => {
+  const router = useRouter();
+  const { address } = router.query;
+  const [fundFinancialData, setFundFinancialData] = useState({
+    gav: 0,
+    nav: 0,
+    supply: 0,
+    price: 0,
+  });
+  const callData = async () => {
+    const fundValueCalculator = new ethers.Contract(
+      Addresses["ocf"]["FundValueCalculator"],
+      FundValueCalculator["abi"],
+      nodeProvider
+    );
+    const vaultProxyERC20 = new ethers.Contract(
+      address as string,
+      ERC20["abi"],
+      nodeProvider
+    );
+    const gavValue = await fundValueCalculator.callStatic.calcGavInAsset(
+      address,
+      Addresses.USDT
+    );
+    const navValue = await fundValueCalculator.callStatic.calcNavInAsset(
+      address,
+      Addresses.USDT
+    );
+    const navShareValue =
+      await fundValueCalculator.callStatic.calcNetShareValueInAsset(
+        address,
+        Addresses.USDT
+      );
+    const supply = await vaultProxyERC20.totalSupply();
+    //console.log(ethers.utils.formatEther(tx));
+    setFundFinancialData({
+      gav: gavValue,
+      nav: navValue ,
+      supply: supply,
+      price: navShareValue ,
+    });
+  };
+  useEffect(() => {
+    if (!router.isReady) return;
+    callData();
+  }, [router]);
   return (
     <Box py={6} px={5} minW={"100vh"}>
       <Stack spacing={4} width={"100%"} direction={"column"}>
         <Heading size={"lg"}>Value</Heading>
         <ValueCard
-          gav={5000}
-          nav={6000}
-          supply={50000}
-          price={3000}
-          tokenName={"V1"}
-          denominatedAssetName={"DAI"}
+          gav={fundFinancialData.gav}
+          nav={fundFinancialData.nav}
+          supply={fundFinancialData.supply}
+          price={fundFinancialData.price}
+          tokenName={props.name}
+          denominatedAssetName={"USDT"}
         />
         <Heading size={"lg"}>Return Metrics</Heading>
 

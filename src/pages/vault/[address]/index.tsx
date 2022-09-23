@@ -117,9 +117,12 @@ const Vault: NextPageWithLayout = () => {
       ),
     },
     { name: "Portflio", component: <PortFolio /> },
-    { name: "Financials", component: <Financials /> },
+    {
+      name: "Financials",
+      component: <Financials name={data["fund"]["name"]} />,
+    },
     { name: "Fees", component: <Fee /> },
-    { name: "Policies", component: <Policies /> },
+    // { name: "Policies", component: <Policies /> },
     { name: "Depositers", component: <Depositer /> },
   ];
   return (

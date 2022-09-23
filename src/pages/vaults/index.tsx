@@ -34,6 +34,26 @@ interface pageDataType {
 
 const columnHelper = createColumnHelper<VaultType>();
 
+const GET_VAULTS_QUERY = gql`
+  query {
+    funds {
+      name
+      creator
+      denominatedAsset {
+        name
+        address
+      }
+      vaultProxy
+      comptrollerProxy
+      price {
+        date
+        gav
+        navPerShare
+      }
+      depositors
+    }
+  }
+`;
 export async function getServerSideProps() {
   const { data } = await client.query({
     query: gql`
