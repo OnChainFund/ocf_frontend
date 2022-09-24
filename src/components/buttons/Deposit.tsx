@@ -2,7 +2,6 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -16,67 +15,123 @@ import {
   NumberInputField,
   NumberInputStepper,
   useDisclosure,
+  useToast,
+  UseToastOptions,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { selectAccountState } from "app/store/slices/accountSlice";
-import { BigNumber, ethers, utils, Contract } from "ethers";
-import { parseEther } from "ethers/lib/utils";
-import ComptrollerLib from "../../abis/ocf/ComptrollerLib.json";
-import DepositWrapper from "../../abis/ocf/DepositWrapper.json";
+import { BigNumber, utils } from "ethers";
+import React from "react";
+import { useDebounce } from "use-debounce";
+import {
+  useAccount,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 declare let window: any;
-export function DepositButton() {
-  //
-  const AccountState = useSelector(selectAccountState);
-  //
+interface Prop {
+  comptrollerProxyAddress: string;
+}
+export function DepositButton(props: Prop) {
+  const { address, connector, isConnected } = useAccount();
   const format = (val: number) => `$` + val;
   const parse = (val: string) => Number(val.replace(/^\$/, ""));
-  const [value, setValue] = React.useState(1);
-
+  const [value, setValue] = React.useState(0);
+  const debouncedValue = useDebounce(value, 500);
+  // updates the value if no change has been made for 500 milliseconds
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
+
+  const {
+    config,
+    error: prepareError,
+    isError: isPrepareError,
+  } = usePrepareContractWrite({
+    addressOrName: props.comptrollerProxyAddress,
+    contractInterface: [
+      {
+        name: "buyShares",
+        type: "function",
+        stateMutability: "nonpayable",
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "_investmentAmount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "_minSharesQuantity",
+            type: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "sharesReceived_",
+            type: "uint256",
+          },
+        ],
+      },
+    ],
+    overrides: {
+      gasLimit: 20e5,
+    },
+    functionName: "buyShares",
+    args: [utils.parseEther(value.toString()), BigNumber.from(1)],
+    enabled: Boolean(debouncedValue),
+  });
+
+  const { data, error, isError, write } = useContractWrite(config);
+
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
+  const toast = useToast();
+  const toastIdRef = React.useRef();
+
+  if (!isConnected) {
+    return (
+      <Button onClick={onOpen} disabled={true}>
+        Not Connected
+      </Button>
+    );
+  }
+  //console.log(props.comptrollerProxyAddress);
   function deposit() {
-    exchangeEthAndBuyShares();
+    write();
     onClose();
   }
-
-  async function exchangeEthAndBuyShares() {
-    if (!window.ethereum) return;
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const depositWrapper: Contract = new ethers.Contract(
-      DepositWrapper["address"],
-      DepositWrapper["abi"],
-      signer
-    );
-    depositWrapper
-      .exchangeEthAndBuyShares(
-        "0x8a479C366EE7E51eF0Bc2c496b9707CEF0aC610c", //comptrollerProxy
-        "0x6cEeB8fec16F7276F57ACF70C14ecA6008d3DDD4", //wavax
-        BigInt(1e18),
-        "0x0000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
-        0,
-        {
-          value: BigInt(value * 1e18),
-          gasLimit: 20e5,
-        }
-      )
-      .catch((e: Error) => console.log(e));
+  function close() {
+    if (toastIdRef.current) {
+      toast.close(toastIdRef.current);
+    }
   }
-
+  function addToast(status: UseToastOptions["status"], description: string) {
+    toastIdRef.current = toast({
+      status: status,
+      description: description,
+      position: "bottom-right",
+    });
+  }
+  if (isPrepareError || isError) {
+    close();
+    addToast("error", "Something Wrong, Your Transaction Errored");
+  }
+  if (isLoading) {
+    close();
+    addToast("loading", "Sending Your deposit...");
+  }
+  if (isSuccess) {
+    close();
+    addToast("success", "Your deposit is success");
+  }
   return (
     <>
-      {AccountState === "0x0000000000000000000000000000000000000000" ? (
-        <Button onClick={onOpen} disabled={true}>
-          Not Connected
-        </Button>
-      ) : (
-        <Button onClick={onOpen}>Deposit</Button>
-      )}
+      <Button onClick={onOpen} disabled={!write || isLoading}>
+        Deposit
+      </Button>
 
       <Modal
         initialFocusRef={initialRef}

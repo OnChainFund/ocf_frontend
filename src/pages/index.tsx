@@ -6,7 +6,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { wrapper } from "app/store/store";
 import { ChakraProvider } from "@chakra-ui/react";
-import { Layout } from "layouts/LayoutProvider";
+import { Layout } from "layouts/provider";
 import Head from "next/head";
 import HomeView from "components/HomeView";
 

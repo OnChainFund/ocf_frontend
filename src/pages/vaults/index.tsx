@@ -2,7 +2,7 @@ import Head from "next/head";
 import type { NextPageWithLayout } from "../../types/page";
 import { useRouter } from "next/router";
 import { Box, ChakraProvider } from "@chakra-ui/react";
-import { Layout } from "layouts/LayoutProvider";
+import { Layout } from "layouts/provider";
 import { DataTable } from "components/DataTable";
 import VaultListCard from "components/vaults/VaultListCard";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -186,11 +186,11 @@ const Vault: NextPageWithLayout = () => {
       table: [],
     };
     let tableResult = [];
-
     for (let index = 0; index < data.funds.length; index++) {
       const fund = data.funds[index];
       const aumNow = Number(await getAUMByUSDT(fund.vaultProxy));
       pageData.AUMSum += aumNow;
+      pageData.depositorCount += fund.depositorCount;
       const priceNow = Number(await getNavPerShareByUSDT(fund.vaultProxy));
 
       let aumChange: number | "-"[] = ["-", "-", "-"]; // 1d ,7d, 30d
@@ -218,7 +218,7 @@ const Vault: NextPageWithLayout = () => {
       // }
 
       tableResult.push({
-        address: fund.fundProxy,
+        address: fund.vaultProxy,
         name: fund.name,
         aum: aumNow,
         //aum: 1,
@@ -233,6 +233,7 @@ const Vault: NextPageWithLayout = () => {
       });
     }
     pageData.table = await Promise.all(tableResult);
+
     setvaultsData(pageData);
   };
 
@@ -254,7 +255,5 @@ const Vault: NextPageWithLayout = () => {
     </>
   );
 };
-
-
 
 export default Vault;

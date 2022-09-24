@@ -1,22 +1,12 @@
 import type { NextPageWithLayout } from "../../../types/page";
-import {
-  ChakraProvider,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-} from "@chakra-ui/react";
-import { Layout } from "layouts/LayoutProvider";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import PortFolio from "components/vault/PortFolio";
 import Financials from "components/vault/Financials";
 import Fee from "components/vault/Fee";
-import Policies from "components/vault/Policies";
 import Depositer from "components/vault/Depositer";
 import { VaultOverview } from "components/vault/VaultOverview";
-import client from "apollo-client";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
@@ -27,13 +17,18 @@ const GET_VAULT_DETAIL = gql`
   query GET_VAULT_DETAIL($address: ID!) {
     fund(pk: $address) {
       name
-      creator
+      creator {
+        pk
+      }
       comptrollerProxy
       denominatedAsset {
         address
         name
       }
-      depositors
+      depositorCount
+      depositors {
+        pk
+      }
       description
       vaultProxy
       price {
@@ -44,6 +39,7 @@ const GET_VAULT_DETAIL = gql`
     }
   }
 `;
+
 function getAverageMonthlyReturn(
   sharePriceNow: number,
   sharePriceOrigin: number,
@@ -67,27 +63,10 @@ const Vault: NextPageWithLayout = () => {
     navAverageMonthReturn: 0,
     navAverageMonthGrowth: 0,
   });
-  const callData = async () => {
-    const aum = Number(await getAUMByUSDT(address as string));
-    const navPerShare = Number(await getNavPerShareByUSDT(address as string));
-    const navAverageMonthReturn = getAverageMonthlyReturn(
-      navPerShare,
-      data["fund"]["price"][0]["navPerShare"],
-      data["fund"]["price"][0]["date"]
-    );
-    const navAverageMonthGrowth =
-      (navAverageMonthReturn / data["fund"]["price"][0]["navPerShare"]) * 100;
-    const vaultData = {
-      AUM: aum,
-      navPerShare: navPerShare,
-      navAverageMonthReturn: navAverageMonthReturn,
-      navAverageMonthGrowth: navAverageMonthGrowth,
-    };
-    setVaultData(vaultData);
-  };
   const { data, loading, error } = useQuery(GET_VAULT_DETAIL, {
     variables: { address },
   });
+
   useEffect(() => {
     if (loading || error || !router.isReady) return;
     callData();
@@ -99,6 +78,29 @@ const Vault: NextPageWithLayout = () => {
   if (error) {
     return <>error</>;
   }
+  const callData = async () => {
+    const aum = Number(await getAUMByUSDT(address as string));
+    const navPerShare = Number(await getNavPerShareByUSDT(address as string));
+    let navAverageMonthReturn = 0;
+    let navAverageMonthGrowth = 0;
+    if (data["fund"]["price"].length > 0) {
+      navAverageMonthReturn = getAverageMonthlyReturn(
+        navPerShare,
+        data["fund"]["price"][0]["navPerShare"],
+        data["fund"]["price"][0]["date"]
+      );
+      navAverageMonthGrowth =
+        (navAverageMonthReturn / data["fund"]["price"][0]["navPerShare"]) * 100;
+    }
+
+    const vaultData = {
+      AUM: aum,
+      navPerShare: navPerShare,
+      navAverageMonthReturn: navAverageMonthReturn,
+      navAverageMonthGrowth: navAverageMonthGrowth,
+    };
+    setVaultData(vaultData);
+  };
 
   const VaultNavList: Array<VaultNav> = [
     {
@@ -112,7 +114,8 @@ const Vault: NextPageWithLayout = () => {
           averageMonthlyReturn={vaultData.navAverageMonthReturn}
           averageMonthlyGrowth={vaultData.navAverageMonthGrowth}
           denominatedAssetName={data["fund"]["denominatedAsset"]["name"]}
-          depositers={data["fund"]["depositors"]}
+          depositers={data["fund"]["depositorCount"]}
+          comptrollerProxyAddress={data.fund.comptrollerProxy}
         />
       ),
     },
@@ -147,7 +150,5 @@ const Vault: NextPageWithLayout = () => {
     </>
   );
 };
-
-
 
 export default Vault;

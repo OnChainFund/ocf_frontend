@@ -15,42 +15,7 @@ import { WagmiConfig, createClient, configureChains, Chain } from "wagmi";
 
 import { publicProvider } from "wagmi/providers/public";
 import { useStore } from "react-redux";
-import { Layout } from "layouts/LayoutProvider";
-
-const fuji = {
-  id: 43113,
-  name: "Fuji Testnet",
-  network: "Avalanche",
-  nativeCurrency: {
-    decimals: 18,
-    name: "AVAX",
-    symbol: "AVAX",
-  },
-  rpcUrls: {
-    public: "https://api.avax-test.network/ext/bc/C/rpc",
-    default: "https://api.avax-test.network/ext/bc/C/rpc",
-  },
-  blockExplorers: {
-    default: { name: "Snowtrace", url: "https://testnet.snowtrace.io/" },
-  },
-  //iconUrls: ["https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png"],
-  testnet: true,
-};
-const { chains, provider, webSocketProvider } = configureChains(
-  [fuji],
-  [publicProvider()]
-);
-
-const { connectors } = getDefaultWallets({
-  appName: "On Chain Fund",
-  chains,
-});
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
+import { Layout } from "layouts/provider";
 
 type Props = AppProps & {
   Component: NextPageWithLayout;
@@ -59,24 +24,11 @@ function MyApp({ Component, pageProps }: Props) {
   return (
     <>
       <Providers>
-        <WagmiConfig client={wagmiClient}>
-          <RainbowKitProvider
-            coolMode
-            chains={chains}
-            theme={darkTheme({
-              accentColor: "#623485", //color of wallet  try #703844
-              accentColorForeground: "white", //color of text
-              borderRadius: "large", //rounded edges
-              fontStack: "system",
-            })}
-          >
-            <ApolloProvider client={client}>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </ApolloProvider>
-          </RainbowKitProvider>
-        </WagmiConfig>
+        <ApolloProvider client={client}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </ApolloProvider>
       </Providers>
     </>
   );

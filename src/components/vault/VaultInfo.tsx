@@ -33,12 +33,15 @@ function StatsCard(props: StatsCardProps) {
   );
 }
 interface Props {
-  aum: number;
-  averageMonthlyReturn: number;
-  averageMonthlyGrowth: number;
-  depositers: number;
-  denominatedAssetName: string;
+  data: {
+    aum: number;
+    averageMonthlyReturn: number;
+    averageMonthlyGrowth: number;
+    depositers: number;
+    denominatedAssetName: string;
+  };
 }
+
 export default function BasicStatistics(props: Props) {
   return (
     <Box maxW="7xl" mx={"auto"} pt={5} px={{ base: 2, sm: 12, md: 17 }}>
@@ -54,21 +57,10 @@ export default function BasicStatistics(props: Props) {
           <StatLabel>{"Assets Under Management"}</StatLabel>
           <StatNumber>
             {"$"}
-            {props.aum.toFixed(2)}
+            {props.data.aum.toFixed(2)}
           </StatNumber>
         </Stat>
-        <Stat
-          px={{ base: 4, md: 8 }}
-          py={"2"}
-          shadow={"xl"}
-          border={"1px solid"}
-          borderColor={useColorModeValue("gray.800", "gray.500")}
-          rounded={"lg"}
-        >
-          <StatLabel>{"Depositors"}</StatLabel>
-          <StatNumber>{props.depositers}</StatNumber>
-        </Stat>
-
+        <StatsCard title={"Depositors"} stat={String(props.data.depositers)} />
         <Stat
           px={{ base: 4, md: 8 }}
           py={"2"}
@@ -80,19 +72,21 @@ export default function BasicStatistics(props: Props) {
           <StatLabel>{"Average Monthly Return"}</StatLabel>
           <StatNumber>
             {"$"}
-            {props.averageMonthlyReturn.toFixed(2)}
+            {props.data.averageMonthlyReturn.toFixed(2)}
           </StatNumber>
           <StatHelpText>
             <StatArrow
-              type={props.averageMonthlyGrowth >= 0 ? "increase" : "decrease"}
+              type={
+                props.data.averageMonthlyGrowth >= 0 ? "increase" : "decrease"
+              }
             />
-            {props.averageMonthlyGrowth.toFixed(2)}
+            {props.data.averageMonthlyGrowth.toFixed(2)}
             {"%"}
           </StatHelpText>
         </Stat>
         <StatsCard
           title={"Denomination Asset"}
-          stat={props.denominatedAssetName}
+          stat={props.data.denominatedAssetName}
         />
       </SimpleGrid>
     </Box>

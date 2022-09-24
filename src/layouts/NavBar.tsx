@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -5,27 +6,35 @@ import {
   Link,
   useDisclosure,
   useColorModeValue,
+  Spacer,
+  Text,
+  Button,
 } from "@chakra-ui/react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-type LinkBarItem = {
-  name: string;
-  link: string;
-};
-const Links: LinkBarItem[] = [
-  //  { name: "dashboard", link: "" },
-  { name: "Home", link: "/" },
-  { name: "Vault", link: "/vault" },
-  { name: "Manager", link: "/manager" },
-  { name: "Docs", link: "https://onchainfund.github.io/doc/" },
-  { name: "Testing Page", link: "/test" },
-];
-
-interface NavLinkProps {
+import { GetMockedUSDT } from "components/buttons/GetMockedUSDT";
+interface NavLinkItem {
   title: string;
   link: string;
+  isExternal: boolean;
 }
-function NavLink(props: NavLinkProps) {
-  const { title, link } = props;
+const Links: NavLinkItem[] = [
+  { title: "Home", link: "/", isExternal: false },
+  { title: "Vault", link: "/vaults", isExternal: false },
+  { title: "Manager", link: "/manager", isExternal: false },
+
+  { title: "Testing Page", link: "/test", isExternal: false },
+  {
+    title: "Docs",
+    link: "https://onchainfund.github.io/doc/",
+    isExternal: true,
+  },
+  //{ title: "Get Some Gas!", link: "/test", isExternal: true },
+];
+
+function NavLink(props: NavLinkItem) {
+  const { title, link, isExternal } = props;
+  const bg = useColorModeValue("gray.200", "gray.700");
+
   return (
     <Link
       px={2}
@@ -33,9 +42,9 @@ function NavLink(props: NavLinkProps) {
       rounded={"md"}
       _hover={{
         textDecoration: "none",
-        bg: useColorModeValue("gray.200", "gray.700"),
       }}
       href={link}
+      isExternal={isExternal}
     >
       {title}
     </Link>
@@ -60,11 +69,34 @@ export default function NavBar() {
               display={{ base: "none", md: "flex" }}
             >
               {Links.map((item) => (
-                <NavLink key={item.name} title={item.name} link={item.link} />
+                <NavLink
+                  key={item.title}
+                  title={item.title}
+                  link={item.link}
+                  isExternal={item.isExternal}
+                />
               ))}
             </HStack>
           </HStack>
-          <Flex alignItems={"right"} w="20%">
+          <Flex alignItems={"right"} w="45%">
+            <Button>
+              <Link
+                href="https://faucet.avax.network/"
+                isExternal
+                px={2}
+                py={1}
+                rounded={"md"}
+                _hover={{
+                  textDecoration: "none",
+                  bg: useColorModeValue("gray.200", "gray.700"),
+                }}
+              >
+                <Text>Get Some Gas!</Text>
+              </Link>
+            </Button>
+            <Spacer />
+            <GetMockedUSDT />
+            <Spacer />
             <ConnectButton label="Connect to Wallet" chainStatus="name" />
           </Flex>
         </Flex>

@@ -30,11 +30,17 @@ import VaultLib from "../../abis/ocf/VaultLib.json";
 import { ERC20ABI } from "../../abis/ERC20ABI";
 
 import { RepeatIcon } from "@chakra-ui/icons";
+import { useAccount } from "wagmi";
 declare let window: any;
-export function WithdrawButton() {
-  //
+
+interface Prop {
+  asset: string;
+  comptrollerProxyAddress: string;
+  vaultProxyAddress: string;
+}
+export function WithdrawButton(props: Prop) {
+  const { address, connector, isConnected } = useAccount();
   const AccountState = useSelector(selectAccountState);
-  //
   const format = (val: number) => `$` + val;
   const parse = (val: string) => Number(val.replace(/^\$/, ""));
   const [value, setValue] = React.useState(1);
@@ -44,18 +50,18 @@ export function WithdrawButton() {
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
   function deposit() {
-    redeemSharesForSpecificAssets();
+    redeemSharesForSpecificAssets(props.asset, props.comptrollerProxyAddress);
     onClose();
   }
   function showBalance(amount: number): number {
     const present = amount / 1e18;
     return present;
   }
-  async function tokenBalance(account: string) {
+  async function tokenBalance(account: string, vaultProxyAddress: string) {
     if (!window.ethereum) return;
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const vaultProxy = new ethers.Contract(
-      "0x02b7a6d41F929a2d09D6dd8aF5537c1d1fe2E678",
+      vaultProxyAddress,
       VaultLib["abi"],
       provider
     );
@@ -68,19 +74,22 @@ export function WithdrawButton() {
       .catch("error", console.error);
   }
 
-  async function redeemSharesForSpecificAssets() {
+  async function redeemSharesForSpecificAssets(
+    asset: string,
+    comptrollerProxyAddress: string
+  ) {
     if (!window.ethereum) return;
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    const denominatedAsset = "0x6cEeB8fec16F7276F57ACF70C14ecA6008d3DDD4";
+    const denominatedAsset = asset;
     const comptrollerProxy: Contract = new ethers.Contract(
-      "0x8a479C366EE7E51eF0Bc2c496b9707CEF0aC610c",
+      comptrollerProxyAddress,
       ComptrollerLib["abi"],
       signer
     );
     comptrollerProxy
       .redeemSharesForSpecificAssets(
-        AccountState,
+        address,
         BigInt(value * 1e18),
         [denominatedAsset],
         [10000],
@@ -91,72 +100,71 @@ export function WithdrawButton() {
       )
       .catch((e: Error) => console.log(e));
   }
-
+  if (!isConnected) {
+    return (
+      <Button onClick={onOpen} disabled={true}>
+        Not Connected
+      </Button>
+    );
+  }
   return (
     <>
-      {AccountState === "0x0000000000000000000000000000000000000000" ? (
-        <Button onClick={onOpen} disabled={true}>
-          Not Connected
-        </Button>
-      ) : (
-        <>
-          <Button onClick={onOpen}>Withdraw</Button>
+      <Button onClick={onOpen}>Withdraw</Button>
+      <Modal
+        initialFocusRef={initialRef}
+        finalFocusRef={finalRef}
+        isOpen={isOpen}
+        onClose={onClose}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Withdraw</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <Flex>
+                <FormLabel>Amount</FormLabel>
+                <Spacer />
 
-          <Modal
-            initialFocusRef={initialRef}
-            finalFocusRef={finalRef}
-            isOpen={isOpen}
-            onClose={onClose}
-          >
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Withdraw</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody pb={6}>
-                <FormControl>
-                  <Flex>
-                    <FormLabel>Amount</FormLabel>
-                    <Spacer />
-
-                    <Flex>
-                      <Text
-                        _hover={{ color: "teal.500" }}
-                        onClick={() => setValue(showBalance(balance))}
-                      >
-                        Balance: {showBalance(balance).toFixed(2)}
-                      </Text>
-                      <Button
-                        p={5}
-                        bg="white"
-                        onClick={() => tokenBalance(AccountState)}
-                      >
-                        <RepeatIcon aria-label="sorted ascending" />
-                      </Button>
-                    </Flex>
-                  </Flex>
-                  <NumberInput
-                    onChange={(valueString) => setValue(parse(valueString))}
-                    value={format(value)}
+                <Flex>
+                  <Text
+                    _hover={{ color: "teal.500" }}
+                    onClick={() => setValue(showBalance(balance))}
                   >
-                    <NumberInputField />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </FormControl>
-              </ModalBody>
+                    Balance: {showBalance(balance).toFixed(2)}
+                  </Text>
+                  <Button
+                    p={5}
+                    bg="white"
+                    onClick={() =>
+                      tokenBalance(address, props.comptrollerProxyAddress)
+                    }
+                  >
+                    <RepeatIcon aria-label="sorted ascending" />
+                  </Button>
+                </Flex>
+              </Flex>
+              <NumberInput
+                onChange={(valueString) => setValue(parse(valueString))}
+                value={format(value)}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
+          </ModalBody>
 
-              <ModalFooter>
-                <Button onClick={deposit} colorScheme="blue" mr={3}>
-                  Withdraw
-                </Button>
-                <Button onClick={onClose}>Cancel</Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-        </>
-      )}
+          <ModalFooter>
+            <Button onClick={deposit} colorScheme="blue" mr={3}>
+              Withdraw
+            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
