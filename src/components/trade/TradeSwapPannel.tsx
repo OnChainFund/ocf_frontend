@@ -1,8 +1,20 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  TriangleDownIcon,
+} from "@chakra-ui/icons";
 import {
   Box,
   Button,
+  Center,
   Flex,
+  Icon,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
   Menu,
   MenuButton,
   MenuItem,
@@ -14,13 +26,25 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  SimpleGrid,
+  Spacer,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import { SimpleChart } from "components/chart/SimpleChart";
+import { parse } from "graphql";
+import { format } from "path";
 import { useState } from "react";
+import { Props } from "react-apexcharts";
+import ChooseTokenModel from "./ChooseTokenModel";
 
-interface Props {}
+interface Prop {}
+
 export default function TradeSwapPannel(props: Props) {
   interface Asset {
     title: string;
@@ -73,56 +97,119 @@ export default function TradeSwapPannel(props: Props) {
     },
   ];
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [tradePair, setTradePair] = useState({
-    from: Assets[0],
-    to: Assets[1],
-  });
+  const [fromAsset, setFromAsset] = useState(Assets[0]);
+  const [toAsset, setToAsset] = useState(Assets[1]);
+  const [inputAmount, setInputAmount] = useState("0.0");
+  const [outputAmount, setOutputAmount] = useState("0.0");
+  const {
+    isOpen: isFromAssetOpen,
+    onOpen: onFromAssetOpen,
+    onClose: onFromAssetClose,
+  } = useDisclosure();
+  const {
+    isOpen: isToAssetOpen,
+    onOpen: onToAssetOpen,
+    onClose: onToAssetClose,
+  } = useDisclosure();
+  //const [tradeData, setTradeData] = useState({
+  //  fromAsset: Assets[0],
+  //  toAsset: Assets[1],
+  //  inputAmount: "0.0",
+  //  outputAmount: "0.0",
+  //});
+
+  const handleInputChange = (valueString) => {
+    setInputAmount(parse(valueString));
+  };
+  const handleOutputChange = (valueString) => {
+    setOutputAmount(parse(valueString));
+  };
+  const sendTransaction = (valueString) => {
+    setOutputAmount(parse(valueString));
+  };
+  const format = (val) => val;
+  const parse = (val) => val.replace(/^\$/, "");
+  const switchInputOutput = () => {};
+
   return (
     <>
-      <Box p={3}>
-        <Text fontSize="2xl"> Trade </Text>
-      </Box>
       <Box>
-        <Button onClick={onOpen}>{tradePair.from.title}</Button>
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Select An Asset</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              {Assets.map((asset) => (
-                <Box key={asset.address}>
-                  <Button
-                    key={asset.address}
-                    p={2}
-                    m={2}
-                    w="100%"
-                    alignContent={"flex-start"}
-                  >
-                    {asset.title}
-                  </Button>
-                </Box>
-              ))}
-            </ModalBody>
-
-            <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
-                Close
+        <SimpleGrid columns={1} spacing={10}>
+          <Box p={3}>
+            <Text fontSize="2xl"> Trade </Text>
+          </Box>
+          <Box>
+            <Box pt={3}>
+              <Button onClick={onFromAssetOpen}>
+                {fromAsset.title} {"  "}
+                <Icon as={TriangleDownIcon} />
               </Button>
-              <Button variant="ghost">Secondary Action</Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-        {/*<Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            Actions
-          </MenuButton>
-          <MenuList>
-            {Assets.map((asset) => (
-              <MenuItem key={asset.address}>{asset.title}</MenuItem>
-            ))}
-          </MenuList>
-            </Menu>*/}
+              <ChooseTokenModel
+                asset={Assets}
+                isOpen={isFromAssetOpen}
+                onClose={onFromAssetClose}
+                chooseTokenButtonOnClick={setFromAsset}
+              />
+
+              <InputGroup mt={3}>
+                <NumberInput
+                  placeholder="Enter amount"
+                  onChange={handleInputChange}
+                  value={format(inputAmount)}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </InputGroup>
+            </Box>
+            {/*<Center>
+            <Button
+              alignContent={"center"}
+              p={3}
+              mt={3}
+              w={"10%"}
+              bgColor={"white"}
+            >
+              <Icon as={ArrowUpIcon} />
+              <Icon as={ArrowDownIcon} />
+            </Button>
+  </Center>*/}
+
+            <Box pt={3}>
+              <Button onClick={onToAssetOpen}>
+                {toAsset.title} {"  "}
+                <Icon as={TriangleDownIcon} />
+              </Button>
+              <ChooseTokenModel
+                asset={Assets}
+                isOpen={isToAssetOpen}
+                onClose={onToAssetClose}
+                chooseTokenButtonOnClick={setToAsset}
+              />
+
+              <InputGroup mt={3}>
+                <NumberInput
+                  placeholder="Enter amount"
+                  onChange={handleOutputChange}
+                  value={format(outputAmount)}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </InputGroup>
+            </Box>
+          </Box>
+          <Spacer />
+          <Box mt={3}>
+            <Button w={"100%"}>Confirm</Button>
+          </Box>
+        </SimpleGrid>
       </Box>
     </>
   );

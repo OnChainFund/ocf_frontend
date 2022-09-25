@@ -1,6 +1,6 @@
 import type { NextPageWithLayout } from "../../../types/page";
 import { selectAccountState } from "../../../app/store/slices/accountSlice";
-import BasicStatistics from "../../../components/vault/VaultInfo";
+import BasicStatistics from "../../../components/fund/VaultInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { wrapper } from "app/store/store";
 import {
@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { Layout } from "layouts/provider";
 import { useRouter } from "next/router";
-import { VaultChart } from "components/vault/VaultChart";
+import { VaultChart } from "components/fund/VaultChart";
 import { DepositButton } from "components/buttons/Deposit";
 import { WithdrawButton } from "components/buttons/Withdraw";
 import { Contract, ethers } from "ethers";

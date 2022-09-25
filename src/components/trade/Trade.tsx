@@ -1,14 +1,4 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  Flex,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Text,
-} from "@chakra-ui/react";
+import { useColorModeValue, Box, Flex, Text } from "@chakra-ui/react";
 import { SimpleChart } from "components/chart/SimpleChart";
 import TradeSwapPannel from "./TradeSwapPannel";
 
@@ -48,7 +38,12 @@ export default function Trade(props: Props) {
             />
           </Box>
         </Box>
-        <Box borderWidth="2px" borderRadius="lg" w={"100%"}>
+        <Box
+          borderWidth="2px"
+          borderRadius="lg"
+          w={"100%"}
+          //bg={useColorModeValue("gray.300", "gray.900")}
+        >
           <Box pl={5} p={5}>
             <TradeSwapPannel />
           </Box>

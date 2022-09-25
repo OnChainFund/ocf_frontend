@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Box, ChakraProvider } from "@chakra-ui/react";
 import { Layout } from "layouts/provider";
 import { DataTable } from "components/DataTable";
-import VaultListCard from "components/vaults/VaultListCard";
+import VaultListCard from "components/funds/VaultListCard";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql, useQuery } from "@apollo/client";

@@ -6,10 +6,10 @@ import {
   useEnsAvatar,
   useEnsName,
 } from "wagmi";
-import { VaultChart } from "components/vault/VaultChart";
+import { VaultChart } from "components/fund/VaultChart";
 import { DepositButton } from "components/buttons/Deposit";
 import { WithdrawButton } from "components/buttons/Withdraw";
-import BasicStatistics from "components/vault/VaultInfo";
+import BasicStatistics from "components/fund/VaultInfo";
 
 interface Props {
 
