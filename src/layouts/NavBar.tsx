@@ -12,28 +12,15 @@ import {
 } from "@chakra-ui/react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { GetMockedUSDT } from "components/buttons/GetMockedUSDT";
+import SignInButton from "components/buttons/SignInButton";
 interface NavLinkItem {
   title: string;
   link: string;
   isExternal: boolean;
 }
-const Links: NavLinkItem[] = [
-  { title: "Home", link: "/", isExternal: false },
-  { title: "Vault", link: "/vaults", isExternal: false },
-  { title: "Manager", link: "/manager", isExternal: false },
-
-  { title: "Testing Page", link: "/test", isExternal: false },
-  {
-    title: "Docs",
-    link: "https://onchainfund.github.io/doc/",
-    isExternal: true,
-  },
-  //{ title: "Get Some Gas!", link: "/test", isExternal: true },
-];
 
 function NavLink(props: NavLinkItem) {
   const { title, link, isExternal } = props;
-  const bg = useColorModeValue("gray.200", "gray.700");
 
   return (
     <Link
@@ -52,12 +39,19 @@ function NavLink(props: NavLinkItem) {
 }
 
 export default function NavBar() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  function titleCaseWord(word: string) {
-    if (!word) return word;
-    let modified = (" " + word).slice(1);
-    return modified[0].toUpperCase() + modified.substr(1).toLowerCase();
-  }
+  const Links: NavLinkItem[] = [
+    { title: "Home", link: "/", isExternal: false },
+    { title: "Vault", link: "/vaults", isExternal: false },
+
+    { title: "Testing Page", link: "/test", isExternal: false },
+    {
+      title: "Docs",
+      link: "https://onchainfund.github.io/doc/",
+      isExternal: true,
+    },
+    //{ title: "Get Some Gas!", link: "/test", isExternal: true },
+  ];
+  Links.push({ title: "Manager", link: "/manager", isExternal: false });
   return (
     <>
       <Box bg={useColorModeValue("gray.300", "gray.900")} px={4}>
@@ -78,7 +72,7 @@ export default function NavBar() {
               ))}
             </HStack>
           </HStack>
-          <Flex alignItems={"right"} w="45%">
+          <Flex alignItems={"right"} w="55%">
             <Button>
               <Link
                 href="https://faucet.avax.network/"
@@ -98,10 +92,10 @@ export default function NavBar() {
             <GetMockedUSDT />
             <Spacer />
             <ConnectButton label="Connect to Wallet" chainStatus="name" />
+            <Spacer />
+            {/*<SignInButton />*/}
           </Flex>
         </Flex>
-
-        {isOpen ? <Box pb={4} display={{ md: "none" }}></Box> : null}
       </Box>
     </>
   );

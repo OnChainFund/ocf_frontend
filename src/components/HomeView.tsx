@@ -59,7 +59,7 @@ export default function HomeView() {
               _hover={{
                 bg: "green.500",
               }}
-              onClick={() => router.push("/vault")}
+              onClick={() => router.push("/")}
             >
               See Funds
             </Button>

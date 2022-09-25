@@ -1,97 +1,133 @@
 import type { NextPageWithLayout } from "../../../types/page";
-import { selectAccountState } from "../../../app/store/slices/accountSlice";
-import BasicStatistics from "../../../components/vault/VaultInfo";
-import { useDispatch, useSelector } from "react-redux";
-import { wrapper } from "app/store/store";
-import {
-  Image,
-  Box,
-  ChakraProvider,
-  Flex,
-  Stack,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-  chakra,
-} from "@chakra-ui/react";
-import { Layout } from "layouts/provider";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { VaultChart } from "components/vault/VaultChart";
-import { DepositButton } from "components/buttons/Deposit";
-import { WithdrawButton } from "components/buttons/Withdraw";
-import { Contract, ethers } from "ethers";
-import VaultLib from "../../../abis/ocf/VaultLib.json";
 import Head from "next/head";
+import PortFolio from "components/vault/PortFolio";
+import Financials from "components/vault/Financials";
+import Fee from "components/vault/Fee";
+import Depositer from "components/vault/Depositer";
+import { VaultOverview } from "components/vault/VaultOverview";
+import { gql, useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
+import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { FunctionNotFinished } from "components/FunctionNotFinished";
-export const getServerSideProps = wrapper.getServerSideProps(
-  (store) =>
-    async ({ params }) => {
-      return {
-        props: {
-          authState: false,
-        },
-      };
-    }
-);
-declare let window: any;
-
-const VaultOverview = () => {
-  return (
-    <>
-      <Box w="100%" h="100%">
-        <Box w="100%" h="60%">
-          <Flex>
-            {" "}
-            <Box w="80%">
-              <Stack spacing={1} p={5}>
-                <Box>
-                  <Flex>
-                    <Image
-                      borderRadius="full"
-                      boxSize="40px"
-                      src="https://bit.ly/dan-abramov"
-                      alt="Dan Abramov"
-                    />
-                    <Box ml={5}>
-                      <Text fontSize="2xl">Vault 1</Text>
-                      <Text fontSize="1xl" color="gray">
-                        The Stable Strategy
-                      </Text>
-                    </Box>
-                  </Flex>
-                </Box>
-              </Stack>
-            </Box>
-            <Flex w="40%"></Flex>
-          </Flex>
-          <Flex>
-            <VaultChart />
-          </Flex>
-        </Box>
-        <Box w="100%" h="40%" mt={10}>
-          <BasicStatistics />
-        </Box>
-      </Box>
-    </>
-  );
-};
-
+import dynamic from "next/dynamic";
+const Trade = dynamic(() => import("components/trade/Trade"), {
+  ssr: false,
+});
 type VaultNav = { name: string; component: any };
-const VaultNavList: Array<VaultNav> = [
-  { name: "Overview", component: <VaultOverview /> },
-  { name: "Trade", component: <FunctionNotFinished /> },
-  { name: "Landing", component: <FunctionNotFinished /> },
-  { name: "Farming", component: <FunctionNotFinished /> },
-  { name: "Setting", component: <FunctionNotFinished /> },
-];
 
+const GET_VAULT_DETAIL = gql`
+  query GET_VAULT_DETAIL($address: ID!) {
+    fund(pk: $address) {
+      name
+      creator {
+        pk
+      }
+      comptrollerProxy
+      denominatedAsset {
+        address
+        name
+      }
+      depositorCount
+      depositors {
+        pk
+      }
+      description
+      vaultProxy
+      price {
+        gav
+        navPerShare
+        date
+      }
+    }
+  }
+`;
+
+function getAverageMonthlyReturn(
+  sharePriceNow: number,
+  sharePriceOrigin: number,
+  date: string
+) {
+  // 獲取時間差
+  const timeDelta = new Date().getTime() - new Date(date).getTime();
+
+  // 獲取價格差
+  // 計算 價格差/平均一個月的時間差
+  const averageMonthlyReturn =
+    (sharePriceNow - sharePriceOrigin) / (timeDelta / 2592000);
+  return averageMonthlyReturn;
+}
 const Vault: NextPageWithLayout = () => {
   const router = useRouter();
-
   const { address } = router.query;
+  const [vaultData, setVaultData] = useState({
+    AUM: 0,
+    navPerShare: 0,
+    navAverageMonthReturn: 0,
+    navAverageMonthGrowth: 0,
+  });
+  const { data, loading, error } = useQuery(GET_VAULT_DETAIL, {
+    variables: { address },
+  });
+
+  useEffect(() => {
+    if (loading || error || !router.isReady) return;
+    callData();
+  }, [router, loading]);
+
+  if (loading || !router.isReady) {
+    return <>loading</>;
+  }
+  if (error) {
+    return <>error</>;
+  }
+  const callData = async () => {
+    const aum = Number(await getAUMByUSDT(address as string));
+    const navPerShare = Number(await getNavPerShareByUSDT(address as string));
+    let navAverageMonthReturn = 0;
+    let navAverageMonthGrowth = 0;
+    if (data["fund"]["price"].length > 0) {
+      navAverageMonthReturn = getAverageMonthlyReturn(
+        navPerShare,
+        data["fund"]["price"][0]["navPerShare"],
+        data["fund"]["price"][0]["date"]
+      );
+      navAverageMonthGrowth =
+        (navAverageMonthReturn / data["fund"]["price"][0]["navPerShare"]) * 100;
+    }
+
+    const vaultData = {
+      AUM: aum,
+      navPerShare: navPerShare,
+      navAverageMonthReturn: navAverageMonthReturn,
+      navAverageMonthGrowth: navAverageMonthGrowth,
+    };
+    setVaultData(vaultData);
+  };
+
+  const VaultNavList: Array<VaultNav> = [
+    {
+      name: "Overview",
+      component: (
+        <VaultOverview
+          priceChartData={data["fund"]["price"]}
+          name={data["fund"]["name"]}
+          description={data["fund"]["description"]}
+          aum={vaultData.AUM}
+          averageMonthlyReturn={vaultData.navAverageMonthReturn}
+          averageMonthlyGrowth={vaultData.navAverageMonthGrowth}
+          denominatedAssetName={data["fund"]["denominatedAsset"]["name"]}
+          depositers={data["fund"]["depositorCount"]}
+          comptrollerProxyAddress={data.fund.comptrollerProxy}
+        />
+      ),
+    },
+    { name: "Trade", component: <Trade /> },
+    { name: "Landing", component: <FunctionNotFinished /> },
+    { name: "Farming", component: <FunctionNotFinished /> },
+    { name: "Setting", component: <FunctionNotFinished /> },
+  ];
   return (
     <>
       <Head>
