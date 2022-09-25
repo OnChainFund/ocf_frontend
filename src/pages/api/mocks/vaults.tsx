@@ -63,7 +63,7 @@ export const VaultColumns = [
       return (
         <ExternalLinkIcon
           w={"3"}
-          onClick={() => router.push("/vault/" + info.getValue())}
+          onClick={() => router.push("/fund/" + info.getValue())}
         />
       );
     },

@@ -41,7 +41,7 @@ function NavLink(props: NavLinkItem) {
 export default function NavBar() {
   const Links: NavLinkItem[] = [
     { title: "Home", link: "/", isExternal: false },
-    { title: "Vault", link: "/vaults", isExternal: false },
+    { title: "Fund", link: "/funds", isExternal: false },
 
     { title: "Testing Page", link: "/test", isExternal: false },
     {
