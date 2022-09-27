@@ -1,31 +1,9 @@
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  TriangleDownIcon,
-} from "@chakra-ui/icons";
+import { TriangleDownIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Center,
-  Flex,
   Icon,
-  Input,
   InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -36,20 +14,24 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { Addresses } from "abis/ocf/Address";
+import {
+  IntegrationManagerActionId,
+  pangolinTakeOrderArgs,
+} from "app/feature/pangolin";
+import { takeOrderSelector } from "app/feature/utils/common";
 import { SendTransactionButton } from "components/buttons/SendTransactionButton";
-import { SimpleChart } from "components/chart/SimpleChart";
-import { parse } from "graphql";
-import { format } from "path";
 import { useState } from "react";
 import { Props } from "react-apexcharts";
 import ChooseTokenModel from "./ChooseTokenModel";
-import TradeConfirmButton from "./TradeConfirmButton";
-
+import callOnExtension from "../../../abis/ocfNewFormat/ComptrollerLib/callOnExtension.json";
+import { callOnIntegrationArgs } from "app/feature/utils/actions";
+import AmountInputBox from "./AmountInputBox";
 interface Prop {
   comptrollerProxyAddress: string;
 }
 
-export default function TradePannel(props: Props) {
+export default function TradePannel(props: Prop) {
   interface Asset {
     title: string;
     address: string;
@@ -100,7 +82,6 @@ export default function TradePannel(props: Props) {
       address: "0x33506d382684db988D9021A80dBEeEF46a5ABC3A",
     },
   ];
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [fromAsset, setFromAsset] = useState(Assets[0]);
   const [toAsset, setToAsset] = useState(Assets[2]);
   const [inputAmount, setInputAmount] = useState("1.0");
@@ -127,14 +108,22 @@ export default function TradePannel(props: Props) {
   };
   const handleOutputChange = (valueString) => {
     setOutputAmount(parse(valueString));
-  };
-  const sendTransaction = (valueString) => {
-    setOutputAmount(parse(valueString));
+    console.log("first");
   };
   const format = (val) => val;
   const parse = (val) => val.replace(/^\$/, "");
-  const switchInputOutput = () => {};
 
+  const takeOrderArgs = pangolinTakeOrderArgs({
+    minIncomingAssetAmount: Number(inputAmount) * 1e18,
+    outgoingAssetAmount: Number(outputAmount) * 1e18,
+    path: [fromAsset.address, toAsset.address],
+  });
+
+  const callArgs = callOnIntegrationArgs({
+    adapter: Addresses.ocf.PangolinExchangeAdapter,
+    encodedCallArgs: takeOrderArgs,
+    selector: takeOrderSelector,
+  });
   return (
     <>
       <Box>
@@ -143,84 +132,64 @@ export default function TradePannel(props: Props) {
             <Text fontSize="2xl"> Trade </Text>
           </Box>
           <Box>
-            <Box pt={3}>
-              <Button onClick={onFromAssetOpen}>
-                {fromAsset.title} {"  "}
-                <Icon as={TriangleDownIcon} />
-              </Button>
-              <ChooseTokenModel
-                asset={Assets}
-                isOpen={isFromAssetOpen}
-                onClose={onFromAssetClose}
-                chooseTokenButtonOnClick={setFromAsset}
-              />
+            <AmountInputBox
+              assets={Assets}
+              asset={fromAsset}
+              setAsset={setFromAsset}
+              handleChange={handleInputChange}
+              amount={inputAmount}
+              setAmount={setInputAmount}
+            />
 
-              <InputGroup mt={3}>
-                <NumberInput
-                  placeholder="Enter amount"
-                  onChange={handleInputChange}
-                  value={format(inputAmount)}
-                >
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </InputGroup>
-            </Box>
-            {/*<Center>
-            <Button
-              alignContent={"center"}
-              p={3}
-              mt={3}
-              w={"10%"}
-              bgColor={"white"}
-            >
-              <Icon as={ArrowUpIcon} />
-              <Icon as={ArrowDownIcon} />
-            </Button>
-  </Center>*/}
-
-            <Box pt={3}>
-              <Button onClick={onToAssetOpen}>
-                {toAsset.title} {"  "}
-                <Icon as={TriangleDownIcon} />
-              </Button>
-              <ChooseTokenModel
-                asset={Assets}
-                isOpen={isToAssetOpen}
-                onClose={onToAssetClose}
-                chooseTokenButtonOnClick={setToAsset}
-              />
-
-              <InputGroup mt={3}>
-                <NumberInput
-                  placeholder="Enter amount"
-                  onChange={handleOutputChange}
-                  value={format(outputAmount)}
-                >
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </InputGroup>
-            </Box>
+            <AmountInputBox
+              assets={Assets}
+              asset={toAsset}
+              setAsset={setToAsset}
+              handleChange={handleOutputChange}
+              amount={outputAmount}
+              setAmount={setOutputAmount}
+            />
           </Box>
+
           <Spacer />
-          <Box mt={3}>
-            <Button w={"100%"}>Confirm</Button>
-          </Box>
-          <TradeConfirmButton
-            fromAsset={fromAsset.address}
-            toAsset={toAsset.address}
-            comptrollerProxyAddress={props.comptrollerProxyAddress}
-            minIncomingAssetAmount={inputAmount}
-            outgoingAssetAmount={outputAmount}
+
+          <SendTransactionButton
+            buttonTitle={"Confirm"}
+            contractAddress={props.comptrollerProxyAddress}
+            contractInterface={[
+              {
+                inputs: [
+                  {
+                    internalType: "address",
+                    name: "_extension",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "_actionId",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "bytes",
+                    name: "_callArgs",
+                    type: "bytes",
+                  },
+                ],
+                name: "callOnExtension",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+              },
+            ]}
+            functionName={"callOnExtension"}
+            functionArgs={[
+              Addresses.ocf.IntegrationManager,
+              IntegrationManagerActionId.CallOnIntegration,
+              callArgs,
+            ]}
             functionEnabled={true}
-          />
+            notClickable={false}
+          ></SendTransactionButton>
         </SimpleGrid>
       </Box>
     </>

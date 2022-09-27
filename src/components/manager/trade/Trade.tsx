@@ -2,8 +2,10 @@ import { useColorModeValue, Box, Flex, Text } from "@chakra-ui/react";
 import { SimpleChart } from "components/chart/SimpleChart";
 import TradePannel from "./TradePannel";
 
-interface Props {}
-export default function Trade(props: Props) {
+interface Prop {
+  comptrollerProxyAddress: string;
+}
+export default function Trade(props: Prop) {
   const initialData = [
     { time: "2018-12-22", value: 32.51 },
     { time: "2018-12-23", value: 31.11 },
@@ -45,7 +47,7 @@ export default function Trade(props: Props) {
           //bg={useColorModeValue("gray.300", "gray.900")}
         >
           <Box pl={5} p={5}>
-            <TradePannel />
+            <TradePannel comptrollerProxyAddress={""} />
           </Box>
         </Box>
       </Flex>

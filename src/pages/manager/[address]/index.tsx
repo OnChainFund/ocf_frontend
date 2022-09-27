@@ -2,10 +2,6 @@ import type { NextPageWithLayout } from "../../../types/page";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import PortFolio from "components/fund/PortFolio";
-import Financials from "components/fund/Financials";
-import Fee from "components/fund/Fee";
-import Depositer from "components/fund/Depositer";
 import { FundOverview } from "components/fund/FundOverview";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
@@ -120,10 +116,15 @@ const Vault: NextPageWithLayout = () => {
           denominatedAssetName={data["fund"]["denominatedAsset"]["name"]}
           depositers={data["fund"]["depositorCount"]}
           comptrollerProxyAddress={data.fund.comptrollerProxy}
+          vaultProxyAddress={data["fund"]["vaultProxy"]}
+          denominatedAssetAddress={data["fund"]["denominatedAsset"]["address"]}
         />
       ),
     },
-    { name: "Trade", component: <Trade /> },
+    {
+      name: "Trade",
+      component: <Trade comptrollerProxyAddress={data.fund.comptrollerProxy} />,
+    },
     { name: "Landing", component: <FunctionNotFinished /> },
     { name: "Farming", component: <FunctionNotFinished /> },
     { name: "Setting", component: <FunctionNotFinished /> },

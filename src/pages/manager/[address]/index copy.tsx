@@ -20,7 +20,7 @@ import {
 import { Layout } from "layouts/provider";
 import { useRouter } from "next/router";
 import { VaultChart } from "components/fund/VaultChart";
-import { DepositButton } from "components/buttons/Deposit";
+import { DepositButton } from "components/buttons/DepositOld";
 import { WithdrawButton } from "components/buttons/Withdraw";
 import { Contract, ethers } from "ethers";
 import VaultLib from "../../../abis/ocf/VaultLib.json";

@@ -37,17 +37,17 @@ interface Prop {
   vaultProxyAddress: string;
   denominatedAssetAddress: string;
 }
-export function WithdrawButton(props: Prop) {
+export function DepositButton(props: Prop) {
   const { address, isConnected } = useAccount();
   const format = (val: number) => `$` + val;
-  const parse = (val: string) => Number(val.replace(/^\$\./, ""));
+  const parse = (val: string) => Number(val.replace(/[^0-9\.]+/g, ""));
   const [value, setValue] = React.useState(0);
   const debouncedValue = useDebounce(value, 500);
   // updates the value if no change has been made for 500 milliseconds
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data, isError, isLoading } = useBalance({
     addressOrName: address,
-    token: props.vaultProxyAddress,
+    token: props.denominatedAssetAddress,
     cacheTime: 2_000,
   });
   const initialRef = React.useRef(null);
@@ -61,7 +61,7 @@ export function WithdrawButton(props: Prop) {
 
   return (
     <>
-      <Button onClick={onOpen}>Withdraw</Button>
+      <Button onClick={onOpen}>Deposit</Button>
 
       <Modal
         initialFocusRef={initialRef}
@@ -71,7 +71,7 @@ export function WithdrawButton(props: Prop) {
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Withdraw</ModalHeader>
+          <ModalHeader>Deposit</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl>
@@ -100,7 +100,7 @@ export function WithdrawButton(props: Prop) {
             <SendTransactionButton
               buttonTitle={
                 value <= Number(data?.formatted)
-                  ? "Withdraw"
+                  ? "Deposit"
                   : "Amount Over Balance"
               }
               contractAddress={props.comptrollerProxyAddress}

@@ -1,33 +1,16 @@
 import {
   Button,
-  FormControl,
-  FormLabel,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
   useDisclosure,
   useToast,
   UseToastOptions,
 } from "@chakra-ui/react";
-import { BigNumber, Contract, utils } from "ethers";
 import React from "react";
-import { useDebounce } from "use-debounce";
 import {
   useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-declare let window: any;
 interface Prop {
   buttonTitle: string;
   contractAddress: string;
@@ -35,24 +18,13 @@ interface Prop {
   functionName: string;
   functionArgs: Array<any>;
   functionEnabled: boolean;
+  notClickable: boolean;
 }
 export function SendTransactionButton(props: Prop) {
-  const { address, connector, isConnected } = useAccount();
-  const format = (val: number) => `$` + val;
-  const parse = (val: string) => Number(val.replace(/^\$/, ""));
-  const [value, setValue] = React.useState(0);
-  const debouncedValue = useDebounce(value, 500);
-  // updates the value if no change has been made for 500 milliseconds
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isConnected } = useAccount();
+  const { onClose } = useDisclosure();
 
-  const initialRef = React.useRef(null);
-  const finalRef = React.useRef(null);
-
-  const {
-    config,
-    error: prepareError,
-    isError: isPrepareError,
-  } = usePrepareContractWrite({
+  const { config, isError: isPrepareError } = usePrepareContractWrite({
     addressOrName: props.contractAddress,
     contractInterface: props.contractInterface,
     overrides: {
@@ -62,9 +34,7 @@ export function SendTransactionButton(props: Prop) {
     args: props.functionArgs,
     enabled: props.functionEnabled,
   });
-
-  const { data, error, isError, write } = useContractWrite(config);
-
+  const { data, isError, write } = useContractWrite(config);
   const { isLoading, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
   });
@@ -104,7 +74,12 @@ export function SendTransactionButton(props: Prop) {
   }
   return (
     <>
-      <Button onClick={sendTransaction} colorScheme="blue" mr={3}>
+      <Button
+        onClick={sendTransaction}
+        disabled={props.notClickable}
+        colorScheme="blue"
+        mr={3}
+      >
         {props.buttonTitle}
       </Button>
     </>

@@ -7,7 +7,7 @@ import {
   useEnsName,
 } from "wagmi";
 import { VaultChart } from "components/fund/VaultChart";
-import { DepositButton } from "components/buttons/Deposit";
+import { DepositButton } from "components/buttons/DepositButton";
 import { WithdrawButton } from "components/buttons/WithdrawButton";
 import BasicStatistics from "components/fund/VaultInfo";
 
@@ -64,6 +64,8 @@ export const FundOverview = (props: Props) => {
               <Box p={5}>
                 <DepositButton
                   comptrollerProxyAddress={props.comptrollerProxyAddress}
+                  denominatedAssetAddress={props.denominatedAssetAddress}
+                  vaultProxyAddress={props.vaultProxyAddress}
                 />
               </Box>
               <Box p={5}>
