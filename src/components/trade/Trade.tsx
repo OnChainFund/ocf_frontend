@@ -1,6 +1,6 @@
 import { useColorModeValue, Box, Flex, Text } from "@chakra-ui/react";
 import { SimpleChart } from "components/chart/SimpleChart";
-import TradeSwapPannel from "./TradeSwapPannel";
+import TradePannel from "./TradePannel";
 
 interface Props {}
 export default function Trade(props: Props) {
@@ -45,7 +45,7 @@ export default function Trade(props: Props) {
           //bg={useColorModeValue("gray.300", "gray.900")}
         >
           <Box pl={5} p={5}>
-            <TradeSwapPannel />
+            <TradePannel />
           </Box>
         </Box>
       </Flex>

@@ -19,7 +19,7 @@ export const Addresses = {
     Factory: "0xE4A575550C2b460d2307b82dCd7aFe84AD1484dd",
     FactoryMy: "0x2a496ec9e9bE22e66C61d4Eb9d316beaEE31A77b",
     Router: "0x688d21b0B8Dc35971AF58cFF1F7Bf65639937860",
-    ExchangeAdapter: "0x9c734a1af86273c0712a83ac154c51f8f5b21762",
+
     pairs: {
       "USDT/WAVAX": "0x10e87C2dADe91407b3f5284196fd29E3810EDd28",
       "USDT/WBTC": "0x4AC3d002400311F189055a37FD167957F62C7833",
@@ -35,7 +35,9 @@ export const Addresses = {
     },
   },
   ocf: {
+    PangolinExchangeAdapter: "0x9c734a1af86273c0712a83ac154c51f8f5b21762",
     FundValueCalculator: "0x4FB4526A2D9A041a76a635dF4EE9e3335641F2a1",
     FundValueCalculatorRouter: "0xF2F81C87A634cd8E2847b04743240e069b38031B",
+    IntegrationManager: "0xbf07f33165Cc5d64c299E4567e19575AabB80575",
   },
 };

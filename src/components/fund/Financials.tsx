@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import { stringify } from "querystring";
 import { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
-import { nodeProvider } from "app/feature/basic";
+import { nodeProvider } from "app/feature/utils/basic";
 import { Addresses } from "abis/ocf/Address";
 import { default as FundValueCalculator } from "abis/ocf/FundValueCalculator.json";
 import { default as ERC20 } from "abis/ERC20.json";

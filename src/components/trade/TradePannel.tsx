@@ -36,16 +36,20 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { SendTransactionButton } from "components/buttons/SendTransactionButton";
 import { SimpleChart } from "components/chart/SimpleChart";
 import { parse } from "graphql";
 import { format } from "path";
 import { useState } from "react";
 import { Props } from "react-apexcharts";
 import ChooseTokenModel from "./ChooseTokenModel";
+import TradeConfirmButton from "./TradeConfirmButton";
 
-interface Prop {}
+interface Prop {
+  comptrollerProxyAddress: string;
+}
 
-export default function TradeSwapPannel(props: Props) {
+export default function TradePannel(props: Props) {
   interface Asset {
     title: string;
     address: string;
@@ -98,9 +102,9 @@ export default function TradeSwapPannel(props: Props) {
   ];
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [fromAsset, setFromAsset] = useState(Assets[0]);
-  const [toAsset, setToAsset] = useState(Assets[1]);
-  const [inputAmount, setInputAmount] = useState("0.0");
-  const [outputAmount, setOutputAmount] = useState("0.0");
+  const [toAsset, setToAsset] = useState(Assets[2]);
+  const [inputAmount, setInputAmount] = useState("1.0");
+  const [outputAmount, setOutputAmount] = useState("1.0");
   const {
     isOpen: isFromAssetOpen,
     onOpen: onFromAssetOpen,
@@ -209,6 +213,14 @@ export default function TradeSwapPannel(props: Props) {
           <Box mt={3}>
             <Button w={"100%"}>Confirm</Button>
           </Box>
+          <TradeConfirmButton
+            fromAsset={fromAsset.address}
+            toAsset={toAsset.address}
+            comptrollerProxyAddress={props.comptrollerProxyAddress}
+            minIncomingAssetAmount={inputAmount}
+            outgoingAssetAmount={outputAmount}
+            functionEnabled={true}
+          />
         </SimpleGrid>
       </Box>
     </>

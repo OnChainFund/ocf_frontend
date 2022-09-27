@@ -2,7 +2,7 @@ import client from "../../apollo-client";
 import { ethers } from "ethers";
 import ComptrollerLib from "../../abis/ocf/ComptrollerLib.json";
 import FundValueCalculator from "../../abis/ocf/FundValueCalculator.json";
-import { nodeProvider } from "./basic";
+import { nodeProvider } from "./utils/basic";
 import { gql } from "@apollo/client";
 import { timestampToBlockNumber } from "./utils";
 import { Provider, Contract } from "ethcall";

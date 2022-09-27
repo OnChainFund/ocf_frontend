@@ -8,7 +8,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Contract, Provider } from "ethcall";
-import { nodeProvider } from "app/feature/basic";
+import { nodeProvider } from "app/feature/utils/basic";
 import { default as ERC20ABI } from "abis/ERC20.json";
 import client from "apollo-client";
 type TokenInfo = {

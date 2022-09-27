@@ -38,7 +38,7 @@ const GET_VAULT_DETAIL = gql`
       price {
         gav
         navPerShare
-        date
+        time
       }
     }
   }
@@ -91,7 +91,7 @@ const Vault: NextPageWithLayout = () => {
       navAverageMonthReturn = getAverageMonthlyReturn(
         navPerShare,
         data["fund"]["price"][0]["navPerShare"],
-        data["fund"]["price"][0]["date"]
+        data["fund"]["price"][0]["time"]
       );
       navAverageMonthGrowth =
         (navAverageMonthReturn / data["fund"]["price"][0]["navPerShare"]) * 100;

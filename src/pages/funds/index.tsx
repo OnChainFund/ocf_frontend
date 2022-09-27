@@ -48,7 +48,7 @@ const GET_VAULTS_QUERY = gql`
       vaultProxy
       comptrollerProxy
       price {
-        date
+        time
         gav
         navPerShare
       }
@@ -196,7 +196,7 @@ const Vault: NextPageWithLayout = () => {
       let aumChange: number | "-"[] = ["-", "-", "-"]; // 1d ,7d, 30d
       const now = new Date();
       for (let index = 0; index < fund["price"].length; index++) {
-        const date = new Date(fund["price"][index]["date"]);
+        const date = new Date(fund["price"][index]["time"]);
         if (aumChange[0] === "-") {
           if (now.getTime() - date.getTime() > 86400) {
             aumChange[0] = fund["price"][index]["gav"];

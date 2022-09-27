@@ -1,4 +1,4 @@
-import { nodeProvider } from "app/feature/basic";
+import { nodeProvider } from "app/feature/utils/basic";
 
 async function timestampToBlockNumber() {
     const blockNumber = await nodeProvider.getBlock(100004);
