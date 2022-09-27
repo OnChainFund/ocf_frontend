@@ -72,11 +72,7 @@ export function SendTransactionButton(props: Prop) {
   const toastIdRef = React.useRef();
 
   if (!isConnected) {
-    return (
-      <Button onClick={onOpen} disabled={true}>
-        Not Connected
-      </Button>
-    );
+    return <Button disabled={true}>Not Connected</Button>;
   }
   function sendTransaction() {
     write();

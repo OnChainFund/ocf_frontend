@@ -6,13 +6,13 @@ import PortFolio from "components/fund/PortFolio";
 import Financials from "components/fund/Financials";
 import Fee from "components/fund/Fee";
 import Depositer from "components/fund/Depositer";
-import { VaultOverview } from "components/fund/VaultOverview";
+import { FundOverview } from "components/fund/FundOverview";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { FunctionNotFinished } from "components/FunctionNotFinished";
 import dynamic from "next/dynamic";
-const Trade = dynamic(() => import("components/trade/Trade"), {
+const Trade = dynamic(() => import("components/manager/trade/Trade"), {
   ssr: false,
 });
 type VaultNav = { name: string; component: any };
@@ -110,7 +110,7 @@ const Vault: NextPageWithLayout = () => {
     {
       name: "Overview",
       component: (
-        <VaultOverview
+        <FundOverview
           priceChartData={data["fund"]["price"]}
           name={data["fund"]["name"]}
           description={data["fund"]["description"]}

@@ -8,28 +8,29 @@ import {
 } from "wagmi";
 import { VaultChart } from "components/fund/VaultChart";
 import { DepositButton } from "components/buttons/Deposit";
-import { WithdrawButton } from "components/buttons/Withdraw";
+import { WithdrawButton } from "components/buttons/WithdrawButton";
 import BasicStatistics from "components/fund/VaultInfo";
 
 interface Props {
-
-    priceChartData: [];
-    name: string;
-    description: string;
-    aum: number;
-    averageMonthlyReturn: number;
-    averageMonthlyGrowth: number;
-    denominatedAssetName: string;
-    comptrollerProxyAddress: string;
-    depositers: number;
-
+  priceChartData: [];
+  name: string;
+  description: string;
+  aum: number;
+  averageMonthlyReturn: number;
+  averageMonthlyGrowth: number;
+  denominatedAssetName: string;
+  comptrollerProxyAddress: string;
+  vaultProxyAddress: string;
+  denominatedAssetAddress: string;
+  depositers: number;
 }
-export const VaultOverview = (props: Props) => {
+export const FundOverview = (props: Props) => {
   const basicStaticData = {
     aum: props.aum,
     averageMonthlyReturn: props.averageMonthlyReturn,
     averageMonthlyGrowth: props.averageMonthlyGrowth,
     denominatedAssetName: props.denominatedAssetName,
+    denominatedAssetAddress: props.denominatedAssetAddress,
     depositers: props.depositers,
   };
 
@@ -66,7 +67,11 @@ export const VaultOverview = (props: Props) => {
                 />
               </Box>
               <Box p={5}>
-                <WithdrawButton />
+                <WithdrawButton
+                  comptrollerProxyAddress={props.comptrollerProxyAddress}
+                  denominatedAssetAddress={props.denominatedAssetAddress}
+                  vaultProxyAddress={props.vaultProxyAddress}
+                />
               </Box>
             </Flex>
           </Flex>

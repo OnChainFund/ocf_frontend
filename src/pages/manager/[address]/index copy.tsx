@@ -38,7 +38,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
 );
 declare let window: any;
 
-const VaultOverview = () => {
+const FundOverview = () => {
   return (
     <>
       <Box w="100%" h="100%">
@@ -79,7 +79,7 @@ const VaultOverview = () => {
 
 type VaultNav = { name: string; component: any };
 const VaultNavList: Array<VaultNav> = [
-  { name: "Overview", component: <VaultOverview /> },
+  { name: "Overview", component: <FundOverview /> },
   { name: "Trade", component: <FunctionNotFinished /> },
   { name: "Landing", component: <FunctionNotFinished /> },
   { name: "Farming", component: <FunctionNotFinished /> },

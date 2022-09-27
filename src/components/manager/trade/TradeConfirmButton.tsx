@@ -10,7 +10,7 @@ import { SendTransactionButton } from "components/buttons/SendTransactionButton"
 import provider from "ethcall/lib/provider";
 import { BigNumber, ethers } from "ethers";
 import path from "path";
-import callOnExtension from "../../abis/ocfNewFormat/ComptrollerLib/callOnExtension.json";
+import callOnExtension from "../../../abis/ocfNewFormat/ComptrollerLib/callOnExtension.json";
 import { default as ERC20 } from "abis/ERC20.json";
 interface Prop {
   fromAsset: string;

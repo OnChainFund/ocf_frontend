@@ -6,7 +6,7 @@ import PortFolio from "components/fund/PortFolio";
 import Financials from "components/fund/Financials";
 import Fee from "components/fund/Fee";
 import Depositer from "components/fund/Depositer";
-import { VaultOverview } from "components/fund/VaultOverview";
+import { FundOverview } from "components/fund/FundOverview";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
@@ -106,7 +106,7 @@ const Vault: NextPageWithLayout = () => {
     {
       name: "Overview",
       component: (
-        <VaultOverview
+        <FundOverview
           priceChartData={data["fund"]["price"]}
           name={data["fund"]["name"]}
           description={data["fund"]["description"]}
@@ -116,6 +116,8 @@ const Vault: NextPageWithLayout = () => {
           denominatedAssetName={data["fund"]["denominatedAsset"]["name"]}
           depositers={data["fund"]["depositorCount"]}
           comptrollerProxyAddress={data.fund.comptrollerProxy}
+          denominatedAssetAddress={data["fund"]["denominatedAsset"]["address"]}
+          vaultProxyAddress={data["fund"]["vaultProxy"]}
         />
       ),
     },
