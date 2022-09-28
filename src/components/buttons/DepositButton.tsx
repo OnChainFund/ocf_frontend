@@ -40,7 +40,7 @@ interface Prop {
 export function DepositButton(props: Prop) {
   const { address, isConnected } = useAccount();
   const format = (val: number) => `$` + val;
-  const parse = (val: string) => Number(val.replace(/[^0-9\.]+/g, ""));
+  const parse = (val: string) => Number(val.replace(/^\$\./, ""));
   const [value, setValue] = React.useState(0);
   const debouncedValue = useDebounce(value, 500);
   // updates the value if no change has been made for 500 milliseconds

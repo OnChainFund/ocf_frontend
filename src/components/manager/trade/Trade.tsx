@@ -4,6 +4,7 @@ import TradePannel from "./TradePannel";
 
 interface Prop {
   comptrollerProxyAddress: string;
+  vaultProxyAddress: string;
 }
 export default function Trade(props: Prop) {
   const initialData = [
@@ -22,7 +23,7 @@ export default function Trade(props: Prop) {
     <>
       <Flex>
         <Box borderWidth="2px" borderRadius="lg" mr={10}>
-          <Box pl={5} p={5}>
+          <Box pl={2} p={2}>
             <Text> USDT/TSLA </Text>
             <Text fontSize="3xl"> 1713.8 </Text>
           </Box>
@@ -46,8 +47,11 @@ export default function Trade(props: Prop) {
           w={"100%"}
           //bg={useColorModeValue("gray.300", "gray.900")}
         >
-          <Box pl={5} p={5}>
-            <TradePannel comptrollerProxyAddress={""} />
+          <Box pl={2} p={2}>
+            <TradePannel
+              comptrollerProxyAddress={props.comptrollerProxyAddress}
+              vaultProxyAddress={props.vaultProxyAddress}
+            />
           </Box>
         </Box>
       </Flex>

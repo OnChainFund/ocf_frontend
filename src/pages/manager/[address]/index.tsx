@@ -123,7 +123,12 @@ const Vault: NextPageWithLayout = () => {
     },
     {
       name: "Trade",
-      component: <Trade comptrollerProxyAddress={data.fund.comptrollerProxy} />,
+      component: (
+        <Trade
+          comptrollerProxyAddress={data.fund.comptrollerProxy}
+          vaultProxyAddress={data.fund.vaultProxy}
+        />
+      ),
     },
     { name: "Landing", component: <FunctionNotFinished /> },
     { name: "Farming", component: <FunctionNotFinished /> },

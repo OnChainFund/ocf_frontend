@@ -10,6 +10,7 @@ import {
   Box,
   ModalProps,
   UseModalProps,
+  Spacer,
 } from "@chakra-ui/react";
 import { Asset } from "types/asset";
 
@@ -40,6 +41,8 @@ export default function ChooseTokenModel(props: Prop) {
                 }}
               >
                 {asset.title}
+                <Spacer />
+                {Number(asset.balance).toFixed(2)}
               </Button>
             </Box>
           ))}

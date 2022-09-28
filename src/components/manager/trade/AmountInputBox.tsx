@@ -10,6 +10,8 @@ import {
   NumberDecrementStepper,
   Box,
   useDisclosure,
+  Flex,
+  Spacer,
 } from "@chakra-ui/react";
 import {} from "framer-motion";
 import { format } from "path";
@@ -19,8 +21,6 @@ interface Prop {
   assets: Asset[];
   asset: Asset;
   setAsset: Function;
-
-  handleChange: Function;
   amount: string;
   setAmount: Function;
 }
@@ -30,16 +30,25 @@ export default function AmountInputBox(props: Prop) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Box pt={3}>
-      <Button onClick={onOpen}>
-        {props.asset.title} {"  "}
-        <Icon as={TriangleDownIcon} />
-      </Button>
-      <ChooseTokenModel
-        asset={props.assets}
-        isOpen={isOpen}
-        onClose={onClose}
-        chooseTokenButtonOnClick={props.setAsset}
-      />
+      <Flex>
+        <Box>
+          {" "}
+          <Button onClick={onOpen}>
+            {props.asset.title} {"  "}
+            <Icon as={TriangleDownIcon} />
+          </Button>
+          <ChooseTokenModel
+            asset={props.assets}
+            isOpen={isOpen}
+            onClose={onClose}
+            chooseTokenButtonOnClick={props.setAsset}
+          />
+        </Box>
+        <Spacer />
+        <Button onClick={() => props.setAmount(props.asset.balance)}>
+          Balance:{Number(props.asset.balance).toFixed(2)}
+        </Button>
+      </Flex>
 
       <InputGroup mt={3}>
         <NumberInput

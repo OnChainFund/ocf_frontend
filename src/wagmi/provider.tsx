@@ -24,6 +24,10 @@ const fuji: Chain = {
     name: "AVAX",
     symbol: "AVAX",
   },
+  multicall: {
+    address: "strin0xcA11bde05977b3631167028862bE2a173976CA11g",
+    blockCreated: 7096959,
+  },
   rpcUrls: {
     public: "https://api.avax-test.network/ext/bc/C/rpc",
     default: "https://api.avax-test.network/ext/bc/C/rpc",
