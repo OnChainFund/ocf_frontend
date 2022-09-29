@@ -24,7 +24,11 @@ export function SendTransactionButton(props: Prop) {
   const { isConnected } = useAccount();
   const { onClose } = useDisclosure();
 
-  const { config, isError: isPrepareError } = usePrepareContractWrite({
+  const {
+    config,
+    error: prepareError,
+    isError: isPrepareError,
+  } = usePrepareContractWrite({
     addressOrName: props.contractAddress,
     contractInterface: props.contractInterface,
     overrides: {
@@ -34,7 +38,7 @@ export function SendTransactionButton(props: Prop) {
     args: props.functionArgs,
     enabled: props.functionEnabled,
   });
-  const { data, isError, write } = useContractWrite(config);
+  const { data, error, isError, write } = useContractWrite(config);
   const { isLoading, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
   });
@@ -82,6 +86,9 @@ export function SendTransactionButton(props: Prop) {
       >
         {props.buttonTitle}
       </Button>
+      {(isPrepareError || isError) && (
+        <div>Error: {(prepareError || error)?.message}</div>
+      )}
     </>
   );
 }

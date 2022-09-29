@@ -1,4 +1,4 @@
-import type { utils } from "ethers";
+import { ethers, utils } from "ethers";
 import { BigNumber } from "ethers";
 
 export function resolveArguments(
@@ -32,7 +32,10 @@ export function resolveArguments(
   }
 
   if (params.type.match(/^u?int/)) {
-    return `${BigNumber.from(value.toString())}`;
+    //return `${BigNumber.from((value * 1e5).toFixed()).mul(
+    //  BigNumber.from(10).pow(13)
+    //)}`;
+    return ethers.utils.parseUnits(value.toFixed(2), 18);
   }
   return value;
 }

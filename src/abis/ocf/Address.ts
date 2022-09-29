@@ -39,5 +39,6 @@ export const Addresses = {
     FundValueCalculator: "0x4FB4526A2D9A041a76a635dF4EE9e3335641F2a1",
     FundValueCalculatorRouter: "0xF2F81C87A634cd8E2847b04743240e069b38031B",
     IntegrationManager: "0xbf07f33165Cc5d64c299E4567e19575AabB80575",
+    FundDeployer: "0xd590Dc2e92ce061d941A7362F9DD92540679Ef8f",
   },
 };

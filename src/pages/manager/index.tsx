@@ -1,16 +1,14 @@
 import Head from "next/head";
 import type { NextPageWithLayout } from "../../types/page";
 import { useRouter } from "next/router";
-import { Box, ChakraProvider } from "@chakra-ui/react";
-import { Layout } from "layouts/provider";
+import { Box } from "@chakra-ui/react";
 import { DataTable } from "components/DataTable";
-import VaultListCard from "components/funds/VaultListCard";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql, useQuery } from "@apollo/client";
-import client from "../../apollo-client";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
+import ManagerFundListCard from "components/manager/ManagerFundListCard";
 // vault
 type VaultType = {
   address: string;
@@ -243,7 +241,7 @@ const Vault: NextPageWithLayout = () => {
         <title>Vaults</title>
       </Head>
       <>
-        <VaultListCard
+        <ManagerFundListCard
           vaultCount={data.funds.length}
           depositorCount={vaultsData.depositorCount}
           AUMSum={vaultsData.AUMSum}
