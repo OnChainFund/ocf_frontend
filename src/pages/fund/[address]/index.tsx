@@ -47,7 +47,6 @@ function getAverageMonthlyReturn(
 ) {
   // 獲取時間差
   const timeDelta = new Date().getTime() - new Date(date).getTime();
-
   // 獲取價格差
   // 計算 價格差/平均一個月的時間差
   const averageMonthlyReturn =
@@ -66,7 +65,6 @@ const Vault: NextPageWithLayout = () => {
   const { data, loading, error } = useQuery(GET_VAULT_DETAIL, {
     variables: { address },
   });
-
   useEffect(() => {
     if (loading || error || !router.isReady) return;
     callData();
@@ -121,7 +119,12 @@ const Vault: NextPageWithLayout = () => {
         />
       ),
     },
-    { name: "Portflio", component: <PortFolio /> },
+    {
+      name: "Portflio",
+      component: (
+        <PortFolio vaultProxyAddress={address as string} AUM={vaultData.AUM} />
+      ),
+    },
     {
       name: "Financials",
       component: <Financials name={data["fund"]["name"]} />,

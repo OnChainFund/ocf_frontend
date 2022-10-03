@@ -17,19 +17,13 @@ import {
   NumberInputStepper,
   Spacer,
   useDisclosure,
-  useToast,
-  UseToastOptions,
-  Text,
 } from "@chakra-ui/react";
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import React from "react";
 import { useDebounce } from "use-debounce";
 import {
   useAccount,
   useBalance,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
 } from "wagmi";
 import { SendTransactionButton } from "./SendTransactionButton";
 interface Prop {

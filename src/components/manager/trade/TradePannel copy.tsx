@@ -17,7 +17,9 @@ import { Assets } from "pages/api/mocks/assets";
 import { ReadContract } from "types/contract";
 import ERC20BalanceInterface from "../../../abis/newFormat/ERC20/balance.json";
 import { nodeProvider } from "app/feature/utils/basic";
+import abi from "ethcall/lib/abi";
 import { ethers } from "ethers";
+import PangolinRouterGetAmountsIn from "../../../abis/newFormat/Pangolin/PangolinRouter/getAmountsIn.json";
 import PangolinRouterGetAmountsOut from "../../../abis/newFormat/Pangolin/PangolinRouter/getAmountsOut.json";
 interface Prop {
   comptrollerProxyAddress: string;
@@ -32,83 +34,60 @@ export default function TradePannel(props: Prop) {
     inputAmount: "0",
     outputAmount: "0",
   });
-
+  useEffect(() => {
+    //Runs on the first render
+    //And any time any dependency value changes
+  }, [tradingInfo]);
   // 1: Input, 2: Output
   async function resetAmount(type: 1 | 2, value: string) {
+    let amount: any;
     if (typeof tradingInfo.inputAmount === "string") {
       if (type === 1) {
-        // USDT 搭配任一幣種
-        // 非 USDT 幣種搭配(兩階段 1.換成 USDT 2.換成指定幣種)
-
-        let outputAmount = "0";
-        if (Number(value) > 0) {
-          // USD 搭配任一幣種
-          if (
-            tradingInfo.fromAsset.address === Addresses.USDT ||
-            tradingInfo.toAsset.address === Addresses.USDT
-          ) {
-            const pangolinRouter = new ethers.Contract(
-              Addresses.pangolin.Router,
-              [PangolinRouterGetAmountsOut],
-              nodeProvider
-            );
-            const amount = await pangolinRouter.getAmountsOut(
-              ethers.utils.parseUnits(Number(value).toFixed(2), 18),
+        if (
+          tradingInfo.fromAsset.address === Addresses.USDT ||
+          tradingInfo.toAsset.address === Addresses.USDT
+        ) {
+          const pangolinRouter = new ethers.Contract(
+            Addresses.pangolin.Router,
+            [PangolinRouterGetAmountsOut],
+            nodeProvider
+          );
+          console.log(Number(tradingInfo.inputAmount));
+          console.log(typeof tradingInfo.inputAmount);
+          if (Number(tradingInfo.inputAmount) !== 0) {
+            amount = await pangolinRouter.getAmountsOut(
+              ethers.utils.parseUnits(
+                Number(tradingInfo.inputAmount).toFixed(2),
+                18
+              ),
               [tradingInfo.fromAsset.address, tradingInfo.toAsset.address]
             );
-            outputAmount = (Number(amount[1]) / 1e18).toString();
-          } else {
-            const pangolinRouter = new ethers.Contract(
-              Addresses.pangolin.Router,
-              [PangolinRouterGetAmountsOut],
-              nodeProvider
-            );
-            const amountUSD = await pangolinRouter.getAmountsOut(
-              ethers.utils.parseUnits(Number(value).toFixed(2), 18),
-              [tradingInfo.fromAsset.address, Addresses.USDT]
-            );
-            const amountOutPutAsset = await pangolinRouter.getAmountsOut(
-              amountUSD[1],
-              [Addresses.USDT, tradingInfo.toAsset.address]
-            );
-            outputAmount = (Number(amountOutPutAsset[1]) / 1e18).toString();
+            console.log(amount);
+            console.log(Number(amount[0]) / 1e18);
+            console.log(Number(amount[1]) / 1e18);
           }
         }
-
+        //setTradingInfo({
+        //  ...tradingInfo,
+        //  inputAmount: value,
+        //  outputAmount: Number(amount[1]).toString(),
+        //});
         setTradingInfo({
           ...tradingInfo,
           inputAmount: value,
-          outputAmount: outputAmount,
+          outputAmount: (Number(amount[1]) / 1e18).toString(),
         });
       } else {
         setTradingInfo({ ...tradingInfo, outputAmount: value });
       }
     }
   }
-  function switchTradingPair() {
-    setTradingInfo({
-      fromAsset: tradingInfo.toAsset,
-      toAsset: tradingInfo.fromAsset,
-      inputAmount: tradingInfo.outputAmount,
-      outputAmount: tradingInfo.inputAmount,
-    });
-  }
+
   function resetAsset(type: 1 | 2, asset: Asset) {
     if (type === 1) {
-      // 兩個一樣 -> 全部互換
-      if (asset.address === tradingInfo.toAsset.address) {
-        switchTradingPair();
-      } else {
-        // 兩個不同
-        setTradingInfo({ ...tradingInfo, fromAsset: asset });
-      }
+      setTradingInfo({ ...tradingInfo, fromAsset: asset });
     } else {
-      if (asset.address === tradingInfo.fromAsset.address) {
-        switchTradingPair();
-      } else {
-        // 兩個不同
-        setTradingInfo({ ...tradingInfo, toAsset: asset });
-      }
+      setTradingInfo({ ...tradingInfo, toAsset: asset });
     }
   }
 
@@ -122,7 +101,7 @@ export default function TradePannel(props: Prop) {
     });
   }
   const { data, isError, isLoading } = useContractReads({
-    contracts: [...contracts],
+    contracts: contracts,
     allowFailure: false,
   });
 
@@ -164,6 +143,7 @@ export default function TradePannel(props: Prop) {
             <AmountInputBox
               assets={assets}
               asset={tradingInfo.fromAsset}
+              test={tradingInfo}
               type={1}
               amount={tradingInfo.inputAmount}
               setAsset={resetAsset}
@@ -172,6 +152,7 @@ export default function TradePannel(props: Prop) {
 
             <AmountInputBox
               assets={assets}
+              test={tradingInfo}
               asset={tradingInfo.toAsset}
               type={2}
               amount={tradingInfo.outputAmount}

@@ -12,22 +12,29 @@ import {
   useDisclosure,
   Flex,
   Spacer,
+  FormErrorMessage,
+  FormControl,
 } from "@chakra-ui/react";
 import {} from "framer-motion";
-import { format } from "path";
 import { Asset } from "types/asset";
 import ChooseTokenModel from "./ChooseTokenModel";
 interface Prop {
   assets: Asset[];
   asset: Asset;
-  setAsset: Function;
   amount: string;
+  type: 1 | 2;
+  setAsset: Function;
   setAmount: Function;
 }
 
 export default function AmountInputBox(props: Prop) {
+  function setAsset(asset: Asset) {
+    props.setAsset(props.type, asset);
+  }
   const parse = (val) => val.replace(/^\$/, "");
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const isError =
+    Number(props.amount) > Number(props.asset.balance) && props.type === 1;
   return (
     <Box pt={3}>
       <Flex>
@@ -41,28 +48,34 @@ export default function AmountInputBox(props: Prop) {
             asset={props.assets}
             isOpen={isOpen}
             onClose={onClose}
-            chooseTokenButtonOnClick={props.setAsset}
+            chooseTokenButtonOnClick={setAsset}
           />
         </Box>
         <Spacer />
-        <Button onClick={() => props.setAmount(props.asset.balance)}>
+        <Button
+          onClick={() => props.setAmount(props.type, props.asset.balance)}
+        >
           Balance:{Number(props.asset.balance).toFixed(2)}
         </Button>
       </Flex>
-
-      <InputGroup mt={3}>
-        <NumberInput
-          placeholder="Enter amount"
-          onChange={(valueString) => props.setAmount(parse(valueString))}
-          value={props.amount.toString()}
-        >
-          <NumberInputField />
-          <NumberInputStepper>
-            <NumberIncrementStepper />
-            <NumberDecrementStepper />
-          </NumberInputStepper>
-        </NumberInput>
-      </InputGroup>
+      <FormControl isInvalid={isError}>
+        <InputGroup mt={3}>
+          <NumberInput
+            placeholder="Enter amount"
+            onChange={(valueString) =>
+              props.setAmount(props.type, parse(valueString))
+            }
+            value={props.amount.toString()}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </InputGroup>
+        {!isError ? <></> : <FormErrorMessage>Over Balance</FormErrorMessage>}
+      </FormControl>
     </Box>
   );
 }

@@ -1,20 +1,20 @@
 /* eslint-disable react/jsx-key */
-import { chakra, Box } from "@chakra-ui/react";
-import { useTable, useSortBy } from "react-table";
-import { tokenData } from "pages/api/mocks/portfolio";
+import { chakra, Box, Text } from "@chakra-ui/react";
 import { DataTable } from "../DataTable";
 import { createColumnHelper } from "@tanstack/react-table";
-import { gql, useQuery } from "@apollo/client";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { Contract, Provider } from "ethcall";
-import { nodeProvider } from "app/feature/utils/basic";
-import { default as ERC20ABI } from "abis/ERC20.json";
-import client from "apollo-client";
+import { gql } from "@apollo/client";
+import { useState } from "react";
+import { Assets } from "pages/api/mocks/assets";
+import { ReadContract } from "types/contract";
+import { useContractReads } from "wagmi";
+import ERC20BalanceInterface from "../../abis/newFormat/ERC20/balance.json";
+import ChainLinkLatestAnswerInterface from "../../abis/newFormat/ChainLinkAggregatorV3/latestAnswer.json";
+import { formatUnits } from "ethers/lib/utils";
 type TokenInfo = {
   address: string;
   name: string;
   balance: number;
+  assetPrice: number;
   price: number;
   thisDay: number;
   value: number;
@@ -28,32 +28,39 @@ export const tokenColumns = [
     header: "Asset",
   }),
   columnHelper.accessor("balance", {
-    cell: (info) => info.getValue(),
+    cell: (info) => info.getValue().toFixed(2),
     header: "Balance",
     meta: {
       isNumeric: true,
     },
   }),
-  columnHelper.accessor("thisDay", {
-    cell: (info) => (
-      <p style={{ color: info.getValue() > 0 ? "green" : "red" }}>
-        {info.getValue()} %
-      </p>
-    ),
-    header: "This Day",
+  columnHelper.accessor("assetPrice", {
+    cell: (info) => <p>${info.getValue().toFixed(2)}</p>,
+    header: "Asset Price",
     meta: {
       isNumeric: true,
     },
   }),
+  //columnHelper.accessor("thisDay", {
+  //  cell: (info) => (
+  //    <p style={{ color: info.getValue() > 0 ? "green" : "red" }}>
+  //      {info.getValue()} %
+  //    </p>
+  //  ),
+  //  header: "This Day",
+  //  meta: {
+  //    isNumeric: true,
+  //  },
+  //}),
   columnHelper.accessor("value", {
-    cell: (info) => <p>${info.getValue()}</p>,
+    cell: (info) => <p>${info.getValue().toFixed(2)}</p>,
     header: "Value",
     meta: {
       isNumeric: true,
     },
   }),
   columnHelper.accessor("allocation", {
-    cell: (info) => <p>{info.getValue()} %</p>,
+    cell: (info) => <p>{info.getValue().toFixed(2)} %</p>,
     header: "Allocation",
     meta: {
       isNumeric: true,
@@ -70,73 +77,71 @@ const GET_TRACT_ASSETS = gql`
   }
 `;
 
-interface Props {
-  link: string;
-}
-async function getAssetBalance(ethcallProvider, txRequestArray: []) {
-  return await ethcallProvider.all(txRequestArray);
-}
-
 interface fundAssetDetailData {
   name: string;
   balance: number;
-  thisDay: number;
+  assetPrice: number;
+  //thisDay: number;
   value: number;
   allocation: number;
 }
 
-export default function PortFolio() {
-  const router = useRouter();
-  const { address } = router.query;
+interface Prop {
+  vaultProxyAddress: string;
+  AUM: number;
+}
+
+export default function PortFolio(props: Prop) {
   const [vaultTokenData, setVaultTokenData] = useState([]);
+  let contracts: ReadContract[] = [];
+  // get balance
+  for (let index = 0; index < Assets.length; index++) {
+    contracts.push({
+      addressOrName: Assets[index].address,
+      contractInterface: [ERC20BalanceInterface],
+      functionName: "balanceOf",
+      args: [props.vaultProxyAddress],
+    });
+  }
+  // get value now
+  for (let index = 0; index < Assets.length; index++) {
+    contracts.push({
+      addressOrName: Assets[index].priceFeed,
+      contractInterface: [ChainLinkLatestAnswerInterface],
+      functionName: "latestAnswer",
+      args: [],
+    });
+  }
+  // get value 24H ago
 
-  const { data, loading, error } = useQuery(GET_TRACT_ASSETS);
-  const callData = async () => {
-    const ethcallProvider = new Provider();
-    await ethcallProvider.init(nodeProvider);
-    // 獲取各個 token balance
-    let fundAssetDetailDatas: fundAssetDetailData[] = [];
-    const assetData = data["assets"];
-
-    let txRequestArray = [];
-    for (let index = 0; index < data["assets"].length; index++) {
-      const asset = assetData[index];
-      const assetContract = new Contract(asset["address"], ERC20ABI["abi"]);
-      const assetBalanceCall = assetContract.balanceOf(address);
-      const assetPriceCall = assetContract.balanceOf(address);
-      txRequestArray.push(assetBalanceCall);
-    }
-    let txResultArray = [];
-    txResultArray.unshift(
-      ...(await ethcallProvider.all(txRequestArray.slice(0, 8)))
-    );
-
-    for (let index = 0; index < txResultArray.length; index++) {
-      const asset = assetData[index];
-      const assetBalance = Number(txResultArray[index]) / 1e18;
-      if (assetBalance === 0) {
-      }
-      fundAssetDetailDatas.push({
-        name: asset.name,
-        balance: assetBalance,
-        thisDay: 0,
-        value: 0,
-        allocation: 0,
+  const { data, isError, isLoading } = useContractReads({
+    contracts: contracts,
+    allowFailure: false,
+    cacheTime: 100_000,
+  });
+  if (isError || isLoading) {
+    return <Text fontSize="2xl"> Something Wrong </Text>;
+  }
+  let assets: fundAssetDetailData[] = [];
+  for (let index = 0; index < Assets.length; index++) {
+    if (Number(formatUnits(data[index], 18)) !== 0) {
+      assets.push({
+        name: Assets[index].title,
+        balance: Number(formatUnits(data[index], 18)),
+        //thisDay: 0,
+        assetPrice: Number(formatUnits(data[index + Assets.length], 8)),
+        value:
+          Number(formatUnits(data[index], 18)) *
+          Number(formatUnits(data[index + Assets.length], 8)),
+        allocation:
+          ((Number(formatUnits(data[index], 18)) *
+            Number(formatUnits(data[index + Assets.length], 8))) /
+            props.AUM) *
+          100,
       });
     }
-    setVaultTokenData(fundAssetDetailDatas);
-  };
-  useEffect(() => {
-    if (loading || error || !router.isReady) return;
-    callData();
-  }, [router, loading, error]);
+  }
 
-  if (loading || !router.isReady) {
-    return <>loading</>;
-  }
-  if (error) {
-    return <>error</>;
-  }
   return (
     <>
       <Box>
@@ -144,7 +149,7 @@ export default function PortFolio() {
           Token Holdings
         </chakra.h1>
       </Box>
-      <DataTable data={vaultTokenData} columns={tokenColumns} />
+      <DataTable data={assets} columns={tokenColumns} />
     </>
   );
 }
