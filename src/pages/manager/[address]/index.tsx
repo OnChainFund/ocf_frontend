@@ -8,10 +8,12 @@ import { useEffect, useState } from "react";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { FunctionNotFinished } from "components/FunctionNotFinished";
 import dynamic from "next/dynamic";
-import TradePannel from "components/manager/trade/TradePannel";
-const Trade = dynamic(() => import("components/manager/trade/Trade"), {
-  ssr: false,
-});
+const TradePannel = dynamic(
+  () => import("components/manager/trade/TradePannel"),
+  {
+    ssr: false,
+  }
+);
 type VaultNav = { name: string; component: any };
 
 const GET_VAULT_DETAIL = gql`
@@ -131,7 +133,7 @@ const Vault: NextPageWithLayout = () => {
         />
       ),
     },
-    { name: "Lending", component: <FunctionNotFinished /> },
+    { name: "Landing", component: <FunctionNotFinished /> },
     { name: "Farming", component: <FunctionNotFinished /> },
     { name: "Setting", component: <FunctionNotFinished /> },
   ];

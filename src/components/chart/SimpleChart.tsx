@@ -61,5 +61,9 @@ export const SimpleChart = (props: Prop) => {
     areaBottomColor,
   ]);
 
-  return <div ref={chartContainerRef} />;
+  return (
+    <>
+      <div ref={chartContainerRef} />
+    </>
+  );
 };

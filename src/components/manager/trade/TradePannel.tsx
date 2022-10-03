@@ -1,4 +1,4 @@
-import { Box, SimpleGrid, Spacer, Text } from "@chakra-ui/react";
+import { Box, Flex, SimpleGrid, Spacer, Text } from "@chakra-ui/react";
 import { Addresses } from "abis/ocf/Address";
 import {
   IntegrationManagerActionId,
@@ -19,6 +19,7 @@ import ERC20BalanceInterface from "../../../abis/newFormat/ERC20/balance.json";
 import { nodeProvider } from "app/feature/utils/basic";
 import { ethers } from "ethers";
 import PangolinRouterGetAmountsOut from "../../../abis/newFormat/Pangolin/PangolinRouter/getAmountsOut.json";
+import { SimpleChart } from "components/chart/SimpleChart";
 interface Prop {
   comptrollerProxyAddress: string;
   vaultProxyAddress: string;
@@ -31,6 +32,7 @@ export default function TradePannel(props: Prop) {
     toAsset: Assets[2],
     inputAmount: "0",
     outputAmount: "0",
+    price: 0,
   });
 
   // 1: Input, 2: Output
@@ -79,6 +81,7 @@ export default function TradePannel(props: Prop) {
           ...tradingInfo,
           inputAmount: value,
           outputAmount: outputAmount,
+          price: Number(outputAmount) / Number(value),
         });
       } else {
         setTradingInfo({ ...tradingInfo, outputAmount: value });
@@ -91,6 +94,7 @@ export default function TradePannel(props: Prop) {
       toAsset: tradingInfo.fromAsset,
       inputAmount: tradingInfo.outputAmount,
       outputAmount: tradingInfo.inputAmount,
+      price: tradingInfo.price === 0 ? 0 : 1 / tradingInfo.price,
     });
   }
   function resetAsset(type: 1 | 2, asset: Asset) {
@@ -153,74 +157,117 @@ export default function TradePannel(props: Prop) {
     Number(tradingInfo.fromAsset.balance) < Number(tradingInfo.inputAmount);
   //||
   //Number(tradingInfo.toAsset.balance) < Number(tradingInfo.outputAmount);
+  const initialData = [
+    { time: "2018-12-22", value: 32.51 },
+    { time: "2018-12-23", value: 31.11 },
+    { time: "2018-12-24", value: 27.02 },
+    { time: "2018-12-25", value: 27.32 },
+    { time: "2018-12-26", value: 25.17 },
+    { time: "2018-12-27", value: 28.89 },
+    { time: "2018-12-28", value: 25.46 },
+    { time: "2018-12-29", value: 23.92 },
+    { time: "2018-12-30", value: 22.68 },
+    { time: "2018-12-31", value: 22.67 },
+  ];
   return (
     <>
-      <Box>
-        <SimpleGrid columns={1} spacing={10}>
-          <Box p={3}>
-            <Text fontSize="2xl"> Trade </Text>
+      <Flex>
+        <Box borderWidth="2px" borderRadius="lg" mr={10}>
+          <Box pl={2} p={2}>
+            <Text>
+              {tradingInfo.fromAsset.title}/{tradingInfo.toAsset.title}
+            </Text>
+            <Text fontSize="3xl"> {tradingInfo.price.toFixed(5)} </Text>
           </Box>
-          <Box>
-            <AmountInputBox
-              assets={assets}
-              asset={tradingInfo.fromAsset}
-              type={1}
-              amount={tradingInfo.inputAmount}
-              setAsset={resetAsset}
-              setAmount={resetAmount}
-            />
-
-            <AmountInputBox
-              assets={assets}
-              asset={tradingInfo.toAsset}
-              type={2}
-              amount={tradingInfo.outputAmount}
-              setAsset={resetAsset}
-              setAmount={resetAmount}
+          <Box p={5}>
+            <SimpleChart
+              data={initialData}
+              colors={{
+                backgroundColor: "white",
+                lineColor: "#2962FF",
+                textColor: "black",
+                areaTopColor: "#2962FF",
+                areaBottomColor: "rgba(41, 98, 255, 0.28)",
+              }}
             />
           </Box>
+        </Box>
+        <Box>
+          <Box
+            borderWidth="2px"
+            borderRadius="lg"
+            w={"100%"}
+            //bg={useColorModeValue("gray.300", "gray.900")}
+          >
+            <Box>
+              <SimpleGrid columns={1} spacing={10}>
+                <Box p={3}>
+                  <Text fontSize="2xl"> Trade </Text>
+                </Box>
+                <Box>
+                  <AmountInputBox
+                    assets={assets}
+                    asset={tradingInfo.fromAsset}
+                    type={1}
+                    amount={tradingInfo.inputAmount}
+                    setAsset={resetAsset}
+                    setAmount={resetAmount}
+                  />
 
-          <Spacer />
+                  <AmountInputBox
+                    assets={assets}
+                    asset={tradingInfo.toAsset}
+                    type={2}
+                    amount={tradingInfo.outputAmount}
+                    setAsset={resetAsset}
+                    setAmount={resetAmount}
+                  />
+                </Box>
 
-          <SendTransactionButton
-            buttonTitle={overBalanceError ? "Over Balance" : "Confirm"}
-            contractAddress={props.comptrollerProxyAddress}
-            contractInterface={[
-              {
-                inputs: [
-                  {
-                    internalType: "address",
-                    name: "_extension",
-                    type: "address",
-                  },
-                  {
-                    internalType: "uint256",
-                    name: "_actionId",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "bytes",
-                    name: "_callArgs",
-                    type: "bytes",
-                  },
-                ],
-                name: "callOnExtension",
-                outputs: [],
-                stateMutability: "nonpayable",
-                type: "function",
-              },
-            ]}
-            functionName={"callOnExtension"}
-            functionArgs={[
-              Addresses.ocf.IntegrationManager,
-              IntegrationManagerActionId.CallOnIntegration,
-              callArgs,
-            ]}
-            functionEnabled={true}
-            notClickable={overBalanceError}
-          ></SendTransactionButton>
-        </SimpleGrid>
-      </Box>
+                <Spacer />
+
+                <SendTransactionButton
+                  buttonTitle={overBalanceError ? "Over Balance" : "Confirm"}
+                  contractAddress={props.comptrollerProxyAddress}
+                  contractInterface={[
+                    {
+                      inputs: [
+                        {
+                          internalType: "address",
+                          name: "_extension",
+                          type: "address",
+                        },
+                        {
+                          internalType: "uint256",
+                          name: "_actionId",
+                          type: "uint256",
+                        },
+                        {
+                          internalType: "bytes",
+                          name: "_callArgs",
+                          type: "bytes",
+                        },
+                      ],
+                      name: "callOnExtension",
+                      outputs: [],
+                      stateMutability: "nonpayable",
+                      type: "function",
+                    },
+                  ]}
+                  functionName={"callOnExtension"}
+                  functionArgs={[
+                    Addresses.ocf.IntegrationManager,
+                    IntegrationManagerActionId.CallOnIntegration,
+                    callArgs,
+                  ]}
+                  functionEnabled={true}
+                  notClickable={overBalanceError}
+                ></SendTransactionButton>
+              </SimpleGrid>
+            </Box>
+          </Box>
+        </Box>
+      </Flex>
     </>
   );
 }
