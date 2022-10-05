@@ -11,13 +11,13 @@ export function encodeArgs(types: (utils.ParamType | string)[], args: any[]) {
   return utils.hexlify(utils.arrayify(hex));
 }
 
-export function encodeFunctionData(
-  fragment: utils.FunctionFragment,
-  args: any[] = []
-) {
-  const encodedArgs = encodeArgs(fragment.inputs, args);
-  return utils.hexlify(utils.concat([sighash(fragment), encodedArgs]));
-}
+// export function encodeFunctionData(
+//   fragment: utils.FunctionFragment,
+//   args: any[] = []
+// ) {
+//   const encodedArgs = encodeArgs(fragment.inputs, args);
+//   return utils.hexlify(utils.concat([sighash(fragment), encodedArgs]));
+// }
 
 //export async function encodeWithSelector(
 //  fragment: utils.FunctionFragment,

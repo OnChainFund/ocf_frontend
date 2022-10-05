@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { FunctionNotFinished } from "components/FunctionNotFinished";
 import dynamic from "next/dynamic";
+import Setting from "components/manager/setting/Setting";
 const TradePannel = dynamic(
   () => import("components/manager/trade/TradePannel"),
   {
@@ -135,7 +136,15 @@ const Vault: NextPageWithLayout = () => {
     },
     { name: "Landing", component: <FunctionNotFinished /> },
     { name: "Farming", component: <FunctionNotFinished /> },
-    { name: "Setting", component: <FunctionNotFinished /> },
+    {
+      name: "Setting",
+      component: (
+        <Setting
+          name={data["fund"]["name"]}
+          description={data["fund"]["description"]}
+        />
+      ),
+    },
   ];
   return (
     <>
