@@ -32,7 +32,7 @@ export const VaultChart = (props: Props) => {
   let values = [];
   for (let index = 0; index < priceChartData.length; index++) {
     labels.push(priceChartData[index]["date"]);
-    values.push(priceChartData[index]["navPerShare"]);
+    values.push(priceChartData[index]["gav"]);
   }
   const options = {
     responsive: true,

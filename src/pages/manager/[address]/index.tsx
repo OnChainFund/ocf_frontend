@@ -2,13 +2,15 @@ import type { NextPageWithLayout } from "../../../types/page";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { FundOverview } from "components/fund/FundOverview";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { FunctionNotFinished } from "components/FunctionNotFinished";
 import dynamic from "next/dynamic";
 import Setting from "components/manager/setting/Setting";
+const FundOverview = dynamic(() => import("components/fund/FundOverview"), {
+  ssr: false,
+});
 const TradePannel = dynamic(
   () => import("components/manager/trade/TradePannel"),
   {

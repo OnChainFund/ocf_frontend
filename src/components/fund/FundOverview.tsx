@@ -1,4 +1,12 @@
-import { Image, Box, Flex, Stack, Text } from "@chakra-ui/react";
+import {
+  Image,
+  Box,
+  Flex,
+  Stack,
+  Text,
+  Button,
+  Spacer,
+} from "@chakra-ui/react";
 import {
   useAccount,
   useConnect,
@@ -10,6 +18,9 @@ import { VaultChart } from "components/fund/VaultChart";
 import { DepositButton } from "components/buttons/DepositButton";
 import { WithdrawButton } from "components/buttons/WithdrawButton";
 import BasicStatistics from "components/fund/VaultInfo";
+import { SimpleChart } from "components/chart/SimpleChart";
+import { OverviewChart } from "components/chart/OverviewChart";
+import { useState } from "react";
 
 interface Props {
   priceChartData: [];
@@ -24,7 +35,9 @@ interface Props {
   denominatedAssetAddress: string;
   depositers: number;
 }
-export const FundOverview = (props: Props) => {
+export default function FundOverview(props: Props) {
+  const [chartType, setChartType] = useState(0);
+  // 0: gav, 1: navPerShare
   const basicStaticData = {
     aum: props.aum,
     averageMonthlyReturn: props.averageMonthlyReturn,
@@ -33,7 +46,13 @@ export const FundOverview = (props: Props) => {
     denominatedAssetAddress: props.denominatedAssetAddress,
     depositers: props.depositers,
   };
-
+  const priceData = props.priceChartData.map((data) => ({
+    time: data.time,
+    value: chartType === 1 ? data.gav : data.navPerShare,
+  }));
+  function changeChartType() {
+    setChartType(chartType === 0 ? 1 : 0);
+  }
   return (
     <>
       <Box w="100%" h="100%">
@@ -77,9 +96,26 @@ export const FundOverview = (props: Props) => {
               </Box>
             </Flex>
           </Flex>
+
           <Flex>
-            <VaultChart priceChartData={props.priceChartData} />
+            <Button m={3} onClick={changeChartType} disabled={chartType === 1}>
+              GAV
+            </Button>
+            <Button m={3} onClick={changeChartType} disabled={chartType === 0}>
+              Price Per Share
+            </Button>
           </Flex>
+
+          <OverviewChart
+            data={priceData}
+            colors={{
+              backgroundColor: "white",
+              lineColor: "#2962FF",
+              textColor: "black",
+              areaTopColor: "#2962FF",
+              areaBottomColor: "rgba(41, 98, 255, 0.28)",
+            }}
+          />
         </Box>
         <Box w="100%" h="40%" mt={10}>
           <BasicStatistics data={basicStaticData} />
@@ -87,4 +123,4 @@ export const FundOverview = (props: Props) => {
       </Box>
     </>
   );
-};
+}

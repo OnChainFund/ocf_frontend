@@ -1,7 +1,7 @@
 import Head from "next/head";
 import type { NextPageWithLayout } from "../../types/page";
 import { useRouter } from "next/router";
-import { Box } from "@chakra-ui/react";
+import { Box, Center } from "@chakra-ui/react";
 import { DataTable } from "components/DataTable";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
@@ -9,6 +9,7 @@ import { gql, useQuery } from "@apollo/client";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
 import ManagerFundListCard from "components/manager/ManagerFundListCard";
+import { useAccount } from "wagmi";
 // vault
 type VaultType = {
   address: string;
@@ -33,8 +34,8 @@ interface pageDataType {
 const columnHelper = createColumnHelper<VaultType>();
 
 const GET_VAULTS_QUERY = gql`
-  query {
-    funds {
+  query ($address: ID!) {
+    funds(filters: { creator: { pk: $address } }) {
       name
       creator {
         pk
@@ -56,12 +57,15 @@ const GET_VAULTS_QUERY = gql`
 `;
 
 const Vault: NextPageWithLayout = () => {
+  const { address, isConnected } = useAccount();
   const [vaultsData, setvaultsData] = useState({
     depositorCount: 0,
     AUMSum: 0,
     table: [],
   });
-  const { data, loading, error } = useQuery(GET_VAULTS_QUERY);
+  const { data, loading, error } = useQuery(GET_VAULTS_QUERY, {
+    variables: { address },
+  });
   const router = useRouter();
   useEffect(() => {
     if (loading || error) return;
@@ -74,7 +78,6 @@ const Vault: NextPageWithLayout = () => {
   if (error) {
     return <>error</>;
   }
-  console.log(data.funds.length);
   const VaultColumns = [
     columnHelper.accessor("address", {
       cell: (info) => {
@@ -238,7 +241,7 @@ const Vault: NextPageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Vaults</title>
+        <title>Manager</title>
       </Head>
       <>
         <ManagerFundListCard
@@ -247,7 +250,11 @@ const Vault: NextPageWithLayout = () => {
           AUMSum={vaultsData.AUMSum}
         />
         <Box mt={50}>
-          <DataTable data={vaultsData.table} columns={VaultColumns} />
+          {data.funds.length === 0 ? (
+            "You Don't Have any fund"
+          ) : (
+            <DataTable data={vaultsData.table} columns={VaultColumns} />
+          )}
         </Box>
       </>
     </>
