@@ -212,7 +212,7 @@ const Vault: NextPageWithLayout = () => {
 
       tableResult.push({
         address: fund.vaultProxy,
-        name: fund.name,
+        name: fund.fundInfo.name,
         aum: aumNow,
         //aum: 1,
         denominatedAsset: fund.fundInfo["denominatedAsset"],

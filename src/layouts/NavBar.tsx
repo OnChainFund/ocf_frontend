@@ -85,7 +85,7 @@ export default function NavBar() {
                   bg: useColorModeValue("gray.200", "gray.700"),
                 }}
               >
-                <Text>Get Some Gas!</Text>
+                <Text>Fuji Faucet</Text>
               </Link>
             </Button>
             <Spacer />
