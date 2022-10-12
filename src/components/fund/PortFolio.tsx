@@ -11,14 +11,16 @@ import ERC20BalanceInterface from "../../abis/newFormat/ERC20/balance.json";
 import ChainLinkLatestAnswerInterface from "../../abis/newFormat/ChainLinkAggregatorV3/latestAnswer.json";
 import { formatUnits } from "ethers/lib/utils";
 type TokenInfo = {
-  address: string;
   name: string;
   balance: number;
   assetPrice: number;
-  price: number;
-  thisDay: number;
+  //thisDay: number;
   value: number;
   allocation: number;
+
+  //address: string;
+  //price: number;
+  //thisDay: number;
 };
 const columnHelper = createColumnHelper<TokenInfo>();
 

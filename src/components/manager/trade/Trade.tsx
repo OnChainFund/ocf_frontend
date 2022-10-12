@@ -1,6 +1,6 @@
 import { useColorModeValue, Box, Flex, Text } from "@chakra-ui/react";
 import { SimpleChart } from "components/chart/SimpleChart";
-import TradePannel from "./TradePannel_old";
+import TradePannel from "./TradePannel";
 
 interface Prop {
   comptrollerProxyAddress: string;

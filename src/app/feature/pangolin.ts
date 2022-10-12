@@ -90,20 +90,19 @@ export async function pangolinTakeOrder({
     // Seed the VaultProxy with enough outgoingAsset for the tx
     await path[0].transfer(vaultProxy, outgoingAssetAmount);
   }
+  const addressPath: string[] = [path[0].address, path[1].address];
 
   const takeOrderArgs = pangolinTakeOrderArgs({
-    minIncomingAssetAmount,
+    path: addressPath,
     outgoingAssetAmount,
-    path,
+    minIncomingAssetAmount,
   });
 
   const callArgs = callOnIntegrationArgs({
-    adapter: uniswapV2ExchangeAdapter,
+    adapter: uniswapV2ExchangeAdapter.address,
     encodedCallArgs: takeOrderArgs,
     selector: takeOrderSelector,
   });
-  console.log(integrationManager);
-  console.log("==================");
 
   return comptrollerProxy
     .connect(fundOwner)

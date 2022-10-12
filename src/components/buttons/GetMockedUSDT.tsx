@@ -1,16 +1,7 @@
-import {
-  Button,
-  useDisclosure,
-  useToast,
-  UseToastOptions,
-} from "@chakra-ui/react";
+import { Button, useToast, UseToastOptions } from "@chakra-ui/react";
 import React from "react";
-import {
-  useAccount,
-  usePrepareSendTransaction,
-  useSendTransaction,
-} from "wagmi";
-import { BigNumber, ethers, utils } from "ethers";
+import { useAccount } from "wagmi";
+import { BigNumber, ethers } from "ethers";
 import { Addresses } from "abis/ocf/Address";
 import { ERC20ABI } from "abis/ERC20ABI";
 import { nodeProvider } from "app/feature/utils/basic";
@@ -19,18 +10,19 @@ export function GetMockedUSDT() {
   const toast = useToast();
   const toastIdRef = React.useRef();
   const { address, isConnected } = useAccount();
-  function addToast(status: UseToastOptions["status"], description: string) {
-    toastIdRef.current = toast({
-      status: status,
-      description: description,
-      position: "bottom-right",
-    });
-  }
   function close() {
     if (toastIdRef.current) {
       toast.close(toastIdRef.current);
     }
   }
+  function addToast(status: UseToastOptions["status"], description: string) {
+    toastIdRef.current = toast({
+      status: status,
+      description: description,
+      position: "bottom-right",
+    }) as undefined;
+  }
+
   async function sendUSD(address: string) {
     const erc20 = new ethers.Contract(Addresses.USDT, ERC20ABI, nodeProvider);
     const user: ethers.Wallet = new ethers.Wallet(

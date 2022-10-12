@@ -131,7 +131,7 @@ export function NewFundButton() {
       status: status,
       description: description,
       position: "bottom-right",
-    });
+    }) as undefined;
   }
   if (isPrepareError || isError) {
     close();

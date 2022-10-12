@@ -63,7 +63,7 @@ export function SendTransactionButton(props: Prop) {
       status: status,
       description: description,
       position: "bottom-right",
-    });
+    }) as undefined;
   }
   if (isPrepareError || isError) {
     close();

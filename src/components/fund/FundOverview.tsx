@@ -23,7 +23,7 @@ import { OverviewChart } from "components/chart/OverviewChart";
 import { useState } from "react";
 
 interface Props {
-  priceChartData: [];
+  priceChartData: Array<any>;
   name: string;
   description: string;
   aum: number;
