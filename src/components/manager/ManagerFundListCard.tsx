@@ -1,16 +1,10 @@
 import {
   Box,
-  Button,
   chakra,
   Flex,
   SimpleGrid,
   Spacer,
-  Stat,
-  StatLabel,
-  StatNumber,
-  useColorModeValue,
 } from "@chakra-ui/react";
-import { ReactNode } from "react";
 import { BsPerson } from "react-icons/bs";
 import { AiFillFund } from "react-icons/ai";
 import { FaMoneyBillAlt } from "react-icons/fa";

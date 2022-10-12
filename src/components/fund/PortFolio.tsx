@@ -68,15 +68,6 @@ export const tokenColumns = [
   }),
 ];
 
-const GET_TRACT_ASSETS = gql`
-  query GET_TRACT_ASSETS {
-    assets {
-      address
-      name
-    }
-  }
-`;
-
 interface fundAssetDetailData {
   name: string;
   balance: number;
@@ -92,7 +83,6 @@ interface Prop {
 }
 
 export default function PortFolio(props: Prop) {
-  const [vaultTokenData, setVaultTokenData] = useState([]);
   let contracts: ReadContract[] = [];
   // get balance
   for (let index = 0; index < Assets.length; index++) {

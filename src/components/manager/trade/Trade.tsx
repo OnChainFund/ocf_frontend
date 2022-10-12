@@ -6,6 +6,7 @@ interface Prop {
   comptrollerProxyAddress: string;
   vaultProxyAddress: string;
 }
+
 export default function Trade(props: Prop) {
   const initialData = [
     { time: "2018-12-22", value: 32.51 },

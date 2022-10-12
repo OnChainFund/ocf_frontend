@@ -1,25 +1,21 @@
 import Head from "next/head";
 import type { NextPageWithLayout } from "../../types/page";
 import { useRouter } from "next/router";
-import { Box, ChakraProvider } from "@chakra-ui/react";
-import { Layout } from "layouts/provider";
+import { Box } from "@chakra-ui/react";
 import { DataTable } from "components/DataTable";
 import VaultListCard from "components/funds/FundListCard";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql, useQuery } from "@apollo/client";
-import client from "../../apollo-client";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
+import { AssetAddressToName } from "abis/ocf/AssetAddressToName";
 // vault
 type VaultType = {
   address: string;
   name: string;
   aum: number;
-  denominatedAsset: {
-    name: string;
-    address: string;
-  };
+  denominatedAsset: string;
   price: number;
   thisMonth: number | "-";
   thisWeek: number | "-";
@@ -37,20 +33,17 @@ const columnHelper = createColumnHelper<VaultType>();
 const GET_VAULTS_QUERY = gql`
   query {
     funds {
-      name
-      creator {
-        pk
-      }
-      denominatedAsset {
-        name
-        address
-      }
       vaultProxy
       comptrollerProxy
       price {
         time
         gav
         navPerShare
+      }
+      fundInfo {
+        symbol
+        name
+        denominatedAsset
       }
       depositorCount
     }
@@ -100,7 +93,7 @@ const Vault: NextPageWithLayout = () => {
       header: "AUM(USDT)",
     }),
     columnHelper.accessor("denominatedAsset", {
-      cell: (info) => info.getValue().name,
+      cell: (info) => AssetAddressToName[info.getValue()],
       header: "准入資產",
     }),
     columnHelper.accessor("price", {
@@ -222,10 +215,7 @@ const Vault: NextPageWithLayout = () => {
         name: fund.name,
         aum: aumNow,
         //aum: 1,
-        denominatedAsset: {
-          name: fund.denominatedAsset["name"],
-          address: fund.denominatedAsset["address"],
-        },
+        denominatedAsset: fund.fundInfo["denominatedAsset"],
         price: priceNow,
         thisMonth: percentage(aumChange[0], aumNow),
         thisWeek: percentage(aumChange[1], aumNow),

@@ -1,0 +1,54 @@
+{
+  "inputs": [
+    {
+      "internalType": "address",
+      "name": "_fundOwner",
+      "type": "address"
+    },
+    {
+      "internalType": "string",
+      "name": "_fundName",
+      "type": "string"
+    },
+    {
+      "internalType": "string",
+      "name": "_fundSymbol",
+      "type": "string"
+    },
+    {
+      "internalType": "address",
+      "name": "_denominationAsset",
+      "type": "address"
+    },
+    {
+      "internalType": "uint256",
+      "name": "_sharesActionTimelock",
+      "type": "uint256"
+    },
+    {
+      "internalType": "bytes",
+      "name": "_feeManagerConfigData",
+      "type": "bytes"
+    },
+    {
+      "internalType": "bytes",
+      "name": "_policyManagerConfigData",
+      "type": "bytes"
+    }
+  ],
+  "name": "createNewFund",
+  "outputs": [
+    {
+      "internalType": "address",
+      "name": "comptrollerProxy_",
+      "type": "address"
+    },
+    {
+      "internalType": "address",
+      "name": "vaultProxy_",
+      "type": "address"
+    }
+  ],
+  "stateMutability": "nonpayable",
+  "type": "function"
+}

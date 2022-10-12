@@ -19,6 +19,7 @@ interface Prop {
   functionArgs: Array<any>;
   functionEnabled: boolean;
   notClickable: boolean;
+  afterClick: Function;
 }
 export function SendTransactionButton(props: Prop) {
   const { isConnected } = useAccount();
@@ -66,7 +67,11 @@ export function SendTransactionButton(props: Prop) {
   }
   if (isPrepareError || isError) {
     close();
-    addToast("error", "Something Wrong, Your Transaction Errored");
+    addToast(
+      "error",
+      "Something Wrong, Your Transaction Errored \t Error:" +
+        (prepareError || error)?.message
+    );
   }
   if (isLoading) {
     close();
@@ -79,7 +84,10 @@ export function SendTransactionButton(props: Prop) {
   return (
     <>
       <Button
-        onClick={sendTransaction}
+        onClick={() => {
+          sendTransaction();
+          props.afterClick();
+        }}
         disabled={props.notClickable}
         colorScheme="blue"
         mr={3}

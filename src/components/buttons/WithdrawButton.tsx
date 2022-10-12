@@ -17,20 +17,11 @@ import {
   NumberInputStepper,
   Spacer,
   useDisclosure,
-  useToast,
-  UseToastOptions,
-  Text,
 } from "@chakra-ui/react";
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import React from "react";
 import { useDebounce } from "use-debounce";
-import {
-  useAccount,
-  useBalance,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { SendTransactionButton } from "./SendTransactionButton";
 interface Prop {
   comptrollerProxyAddress: string;
@@ -58,7 +49,6 @@ export function WithdrawButton(props: Prop) {
   }
   if (isLoading) return <>Fetching balance…</>;
   if (isError) return <>Error fetching balance</>;
-
   return (
     <>
       <Button onClick={onOpen}>Withdraw</Button>
@@ -98,6 +88,7 @@ export function WithdrawButton(props: Prop) {
 
           <ModalFooter>
             <SendTransactionButton
+              afterClick={() => {}}
               buttonTitle={
                 value <= Number(data?.formatted)
                   ? "Withdraw"

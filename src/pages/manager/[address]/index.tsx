@@ -8,6 +8,7 @@ import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { FunctionNotFinished } from "components/FunctionNotFinished";
 import dynamic from "next/dynamic";
 import Setting from "components/manager/setting/Setting";
+import { AssetAddressToName } from "abis/ocf/AssetAddressToName";
 const FundOverview = dynamic(() => import("components/fund/FundOverview"), {
   ssr: false,
 });
@@ -22,25 +23,22 @@ type VaultNav = { name: string; component: any };
 const GET_VAULT_DETAIL = gql`
   query GET_VAULT_DETAIL($address: ID!) {
     fund(pk: $address) {
-      name
-      creator {
-        pk
-      }
       comptrollerProxy
-      denominatedAsset {
-        address
-        name
-      }
-      depositorCount
       depositors {
         pk
       }
+      depositorCount
       description
       vaultProxy
       price {
         gav
         navPerShare
         time
+      }
+      fundInfo {
+        symbol
+        name
+        denominatedAsset
       }
     }
   }
@@ -113,17 +111,19 @@ const Vault: NextPageWithLayout = () => {
       name: "Overview",
       component: (
         <FundOverview
-          priceChartData={data["fund"]["price"]}
-          name={data["fund"]["name"]}
-          description={data["fund"]["description"]}
+          priceChartData={data.fund.price}
+          name={data.fund.fundInfo.name}
+          description={data.fund.description}
           aum={vaultData.AUM}
           averageMonthlyReturn={vaultData.navAverageMonthReturn}
           averageMonthlyGrowth={vaultData.navAverageMonthGrowth}
-          denominatedAssetName={data["fund"]["denominatedAsset"]["name"]}
-          depositers={data["fund"]["depositorCount"]}
+          denominatedAssetName={
+            AssetAddressToName[data.fund.fundInfo.denominatedAsset]
+          }
+          depositers={data.fund.depositorCount}
           comptrollerProxyAddress={data.fund.comptrollerProxy}
-          vaultProxyAddress={data["fund"]["vaultProxy"]}
-          denominatedAssetAddress={data["fund"]["denominatedAsset"]["address"]}
+          denominatedAssetAddress={data.fund.fundInfo.denominatedAsset}
+          vaultProxyAddress={data.fund.vaultProxy}
         />
       ),
     },
@@ -136,7 +136,7 @@ const Vault: NextPageWithLayout = () => {
         />
       ),
     },
-    { name: "Landing", component: <FunctionNotFinished /> },
+    { name: "Lending", component: <FunctionNotFinished /> },
     { name: "Farming", component: <FunctionNotFinished /> },
     {
       name: "Setting",

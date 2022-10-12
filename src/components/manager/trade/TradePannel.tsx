@@ -6,9 +6,8 @@ import {
 } from "app/feature/pangolin";
 import { takeOrderSelector } from "app/feature/utils/common";
 import { SendTransactionButton } from "components/buttons/SendTransactionButton";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { callOnIntegrationArgs } from "app/feature/utils/actions";
-import { default as ERC20ABI } from "abis/ERC20.json";
 import AmountInputBox from "./AmountInputBox";
 import { useAccount, useContractReads } from "wagmi";
 import { formatUnits } from "ethers/lib/utils";
@@ -20,6 +19,8 @@ import { nodeProvider } from "app/feature/utils/basic";
 import { ethers } from "ethers";
 import PangolinRouterGetAmountsOut from "../../../abis/newFormat/Pangolin/PangolinRouter/getAmountsOut.json";
 import { SimpleChart } from "components/chart/SimpleChart";
+import { gql } from "@apollo/client";
+import { ChartPannel } from "./ChartPannel";
 interface Prop {
   comptrollerProxyAddress: string;
   vaultProxyAddress: string;
@@ -33,8 +34,23 @@ export default function TradePannel(props: Prop) {
     inputAmount: "0",
     outputAmount: "0",
     price: 0,
+    slippageTolerance: 0.05,
   });
-
+  function tradingPairContainUSDT() {
+    return (
+      tradingInfo.fromAsset.address === Addresses.USDT ||
+      tradingInfo.toAsset.address === Addresses.USDT
+    );
+  }
+  const pangolinRouter = new ethers.Contract(
+    Addresses.pangolin.Router,
+    [PangolinRouterGetAmountsOut],
+    nodeProvider
+  );
+  const pangolinRouterData = {
+    addressOrName: Addresses.pangolin.Router,
+    contractInterface: [PangolinRouterGetAmountsOut],
+  };
   // 1: Input, 2: Output
   async function resetAmount(type: 1 | 2, value: string) {
     if (typeof tradingInfo.inputAmount === "string") {
@@ -45,26 +61,13 @@ export default function TradePannel(props: Prop) {
         let outputAmount = "0";
         if (Number(value) > 0) {
           // USD 搭配任一幣種
-          if (
-            tradingInfo.fromAsset.address === Addresses.USDT ||
-            tradingInfo.toAsset.address === Addresses.USDT
-          ) {
-            const pangolinRouter = new ethers.Contract(
-              Addresses.pangolin.Router,
-              [PangolinRouterGetAmountsOut],
-              nodeProvider
-            );
+          if (tradingPairContainUSDT()) {
             const amount = await pangolinRouter.getAmountsOut(
               ethers.utils.parseUnits(Number(value).toFixed(2), 18),
               [tradingInfo.fromAsset.address, tradingInfo.toAsset.address]
             );
             outputAmount = (Number(amount[1]) / 1e18).toString();
           } else {
-            const pangolinRouter = new ethers.Contract(
-              Addresses.pangolin.Router,
-              [PangolinRouterGetAmountsOut],
-              nodeProvider
-            );
             const amountUSD = await pangolinRouter.getAmountsOut(
               ethers.utils.parseUnits(Number(value).toFixed(2), 18),
               [tradingInfo.fromAsset.address, Addresses.USDT]
@@ -90,6 +93,7 @@ export default function TradePannel(props: Prop) {
   }
   function switchTradingPair() {
     setTradingInfo({
+      ...tradingInfo,
       fromAsset: tradingInfo.toAsset,
       toAsset: tradingInfo.fromAsset,
       inputAmount: tradingInfo.outputAmount,
@@ -125,17 +129,45 @@ export default function TradePannel(props: Prop) {
       args: [props.vaultProxyAddress],
     });
   }
+  if (tradingPairContainUSDT()) {
+    contracts.push({
+      ...pangolinRouterData,
+      functionName: "getAmountsOut",
+      args: [
+        1e10,
+        [tradingInfo.fromAsset.address, tradingInfo.toAsset.address],
+      ],
+    });
+  } else {
+    contracts.push({
+      ...pangolinRouterData,
+      functionName: "getAmountsOut",
+      args: [1e10, [tradingInfo.fromAsset.address, Addresses.USDT]],
+    });
+    contracts.push({
+      ...pangolinRouterData,
+      functionName: "getAmountsOut",
+      args: [1e10, [Addresses.USDT, tradingInfo.toAsset.address]],
+    });
+  }
   const { data, isError, isLoading } = useContractReads({
     contracts: [...contracts],
     allowFailure: false,
   });
 
-  if (!isConnected || isError || isLoading) {
+  if (!isConnected) {
     return <Text fontSize="2xl"> Not Connected </Text>;
   }
+  if (isError) {
+    return <Text fontSize="2xl"> Error </Text>;
+  }
+  if (isLoading) {
+    return <Text fontSize="2xl"> Loading </Text>;
+  }
   const takeOrderArgs = pangolinTakeOrderArgs({
-    minIncomingAssetAmount: Number(tradingInfo.inputAmount),
-    outgoingAssetAmount: Number(tradingInfo.outputAmount),
+    outgoingAssetAmount: Number(tradingInfo.inputAmount),
+    minIncomingAssetAmount:
+      Number(tradingInfo.outputAmount) * (1 - tradingInfo.slippageTolerance),
     path: [tradingInfo.fromAsset.address, tradingInfo.toAsset.address],
   });
 
@@ -145,53 +177,40 @@ export default function TradePannel(props: Prop) {
     selector: takeOrderSelector,
   });
   let assets = [];
-  for (let index = 0; index < data.length; index++) {
+  for (
+    let index = 0;
+    index <
+    (tradingPairContainUSDT() ? contracts.length - 1 : contracts.length - 2);
+    index++
+  ) {
     assets.push({
       title: Assets[index].title,
       address: Assets[index].address,
       balance: formatUnits(data[index], 18),
     });
   }
-
+  let originalPrice = 0;
+  if (tradingPairContainUSDT()) {
+    originalPrice = Number(ethers.utils.formatEther(data.at(-1)[1])) * 1e8;
+  } else {
+    originalPrice =
+      Number(ethers.utils.formatEther(data.at(-2)[1])) *
+      1e8 *
+      (Number(ethers.utils.formatEther(data.at(-1)[1])) * 1e8);
+  }
   const overBalanceError =
     Number(tradingInfo.fromAsset.balance) < Number(tradingInfo.inputAmount);
   //||
   //Number(tradingInfo.toAsset.balance) < Number(tradingInfo.outputAmount);
-  const initialData = [
-    { time: "2018-12-22", value: 32.51 },
-    { time: "2018-12-23", value: 31.11 },
-    { time: "2018-12-24", value: 27.02 },
-    { time: "2018-12-25", value: 27.32 },
-    { time: "2018-12-26", value: 25.17 },
-    { time: "2018-12-27", value: 28.89 },
-    { time: "2018-12-28", value: 25.46 },
-    { time: "2018-12-29", value: 23.92 },
-    { time: "2018-12-30", value: 22.68 },
-    { time: "2018-12-31", value: 22.67 },
-  ];
+
   return (
     <>
       <Flex>
-        <Box borderWidth="2px" borderRadius="lg" mr={10}>
-          <Box pl={2} p={2}>
-            <Text>
-              {tradingInfo.fromAsset.title}/{tradingInfo.toAsset.title}
-            </Text>
-            <Text fontSize="3xl"> {tradingInfo.price.toFixed(5)} </Text>
-          </Box>
-          <Box p={5}>
-            <SimpleChart
-              data={initialData}
-              colors={{
-                backgroundColor: "white",
-                lineColor: "#2962FF",
-                textColor: "black",
-                areaTopColor: "#2962FF",
-                areaBottomColor: "rgba(41, 98, 255, 0.28)",
-              }}
-            />
-          </Box>
-        </Box>
+        <ChartPannel
+          assetName={tradingInfo.toAsset.title}
+          assetAddress={tradingInfo.toAsset.address}
+          price={0}
+        />
         <Box>
           <Box
             borderWidth="2px"
@@ -223,10 +242,27 @@ export default function TradePannel(props: Prop) {
                     setAmount={resetAmount}
                   />
                 </Box>
+                <Box w={"100%"} p={2}>
+                  <Flex>
+                    <Text>Price:</Text>
+                    <Spacer />
+                    <Text>{tradingInfo.price.toFixed(2)}</Text>
+                  </Flex>
+                </Box>
+                <Box w={"100%"} p={2}>
+                  <Flex>
+                    <Text>Slippage Tolerance:</Text>
+                    <Spacer />
+                    <Text>{tradingInfo.slippageTolerance * 100}%</Text>
+                  </Flex>
+                </Box>
 
                 <Spacer />
 
                 <SendTransactionButton
+                  afterClick={() => {
+                    console.log(tradingInfo);
+                  }}
                   buttonTitle={overBalanceError ? "Over Balance" : "Confirm"}
                   contractAddress={props.comptrollerProxyAddress}
                   contractInterface={[

@@ -34,18 +34,16 @@ interface pageDataType {
 const columnHelper = createColumnHelper<VaultType>();
 
 const GET_VAULTS_QUERY = gql`
-  query ($address: ID!) {
-    funds(filters: { creator: { pk: $address } }) {
-      name
-      creator {
-        pk
-      }
-      denominatedAsset {
-        name
-        address
-      }
+  query ($address: String!) {
+    funds(filters: { creator: { iExact: $address } }) {
+      creator
+      denominatedAsset
       vaultProxy
       comptrollerProxy
+      fundInfo {
+        symbol
+        name
+      }
       price {
         time
         gav
@@ -220,12 +218,12 @@ const Vault: NextPageWithLayout = () => {
 
       tableResult.push({
         address: fund.vaultProxy,
-        name: fund.name,
+        name: fund.fundInfo.name,
         aum: aumNow,
         //aum: 1,
         denominatedAsset: {
-          name: fund.denominatedAsset["name"],
-          address: fund.denominatedAsset["address"],
+          name: "USDT",
+          address: "0xd1Cc87496aF84105699E82D46B6c5Ab6775Afae4",
         },
         price: priceNow,
         thisMonth: percentage(aumChange[0], aumNow),
