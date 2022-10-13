@@ -2,8 +2,6 @@
 import { chakra, Box, Text } from "@chakra-ui/react";
 import { DataTable } from "../DataTable";
 import { createColumnHelper } from "@tanstack/react-table";
-import { gql } from "@apollo/client";
-import { useState } from "react";
 import { Assets } from "pages/api/mocks/assets";
 import { ReadContract } from "types/contract";
 import { useContractReads } from "wagmi";
@@ -17,7 +15,6 @@ type TokenInfo = {
   //thisDay: number;
   value: number;
   allocation: number;
-
   //address: string;
   //price: number;
   //thisDay: number;

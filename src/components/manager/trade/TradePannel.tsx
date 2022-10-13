@@ -18,8 +18,6 @@ import ERC20BalanceInterface from "../../../abis/newFormat/ERC20/balance.json";
 import { nodeProvider } from "app/feature/utils/basic";
 import { ethers } from "ethers";
 import PangolinRouterGetAmountsOut from "../../../abis/newFormat/Pangolin/PangolinRouter/getAmountsOut.json";
-import { SimpleChart } from "components/chart/SimpleChart";
-import { gql } from "@apollo/client";
 import { ChartPannel } from "./ChartPannel";
 interface Prop {
   comptrollerProxyAddress: string;

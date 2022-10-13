@@ -10,10 +10,8 @@ import {
   Spacer,
   Textarea,
 } from "@chakra-ui/react";
-import { errors } from "ethers";
 import { useForm } from "react-hook-form";
 import { gql, useMutation } from "@apollo/client";
-import { useEffect } from "react";
 
 const EDIT_FUND_INFO = gql`
   mutation EditFund($description: String!, $detail: String!) {

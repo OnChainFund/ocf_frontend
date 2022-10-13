@@ -5,7 +5,6 @@ import FundValueCalculator from "../../abis/ocf/FundValueCalculator.json";
 import { nodeProvider } from "./utils/basic";
 import { gql } from "@apollo/client";
 import { timestampToBlockNumber } from "./utils";
-import { Provider, Contract } from "ethcall";
 import { Addresses } from "abis/ocf/Address";
 export type VaultType = {
   address: string;
