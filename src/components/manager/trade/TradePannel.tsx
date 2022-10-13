@@ -175,27 +175,7 @@ export default function TradePannel(props: Prop) {
     selector: takeOrderSelector,
   });
   let assets = [];
-  for (
-    let index = 0;
-    index <
-    (tradingPairContainUSDT() ? contracts.length - 1 : contracts.length - 2);
-    index++
-  ) {
-    assets.push({
-      title: Assets[index].title,
-      address: Assets[index].address,
-      balance: formatUnits(data[index], 18),
-    });
-  }
-  let originalPrice = 0;
-  if (tradingPairContainUSDT()) {
-    originalPrice = Number(ethers.utils.formatEther(data.at(-1)[1])) * 1e8;
-  } else {
-    originalPrice =
-      Number(ethers.utils.formatEther(data.at(-2)[1])) *
-      1e8 *
-      (Number(ethers.utils.formatEther(data.at(-1)[1])) * 1e8);
-  }
+
   const overBalanceError =
     Number(tradingInfo.fromAsset.balance) < Number(tradingInfo.inputAmount);
   //||
@@ -258,9 +238,7 @@ export default function TradePannel(props: Prop) {
                 <Spacer />
 
                 <SendTransactionButton
-                  afterClick={() => {
-                    console.log(tradingInfo);
-                  }}
+                  afterClick={() => {}}
                   buttonTitle={overBalanceError ? "Over Balance" : "Confirm"}
                   contractAddress={props.comptrollerProxyAddress}
                   contractInterface={[
