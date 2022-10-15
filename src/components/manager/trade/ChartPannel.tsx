@@ -5,7 +5,6 @@ import { SimpleChart } from "components/chart/SimpleChart";
 const GET_ASSET_PRICE = gql`
   query GET_VAULT_DETAIL($address: ID!) {
     asset(pk: $address) {
-      name
       ftxPrice {
         time
         value

@@ -180,6 +180,7 @@ export default function TradePannel(props: Prop) {
     Number(tradingInfo.fromAsset.balance) < Number(tradingInfo.inputAmount);
   //||
   //Number(tradingInfo.toAsset.balance) < Number(tradingInfo.outputAmount);
+  console.log(assets);
 
   return (
     <>
@@ -203,16 +204,15 @@ export default function TradePannel(props: Prop) {
                 </Box>
                 <Box>
                   <AmountInputBox
-                    assets={assets}
+                    assets={Assets}
                     asset={tradingInfo.fromAsset}
                     type={1}
                     amount={tradingInfo.inputAmount}
                     setAsset={resetAsset}
                     setAmount={resetAmount}
                   />
-
                   <AmountInputBox
-                    assets={assets}
+                    assets={Assets}
                     asset={tradingInfo.toAsset}
                     type={2}
                     amount={tradingInfo.outputAmount}
@@ -224,7 +224,10 @@ export default function TradePannel(props: Prop) {
                   <Flex>
                     <Text>Price:</Text>
                     <Spacer />
-                    <Text>{tradingInfo.price.toFixed(2)}</Text>
+                    <Text>
+                      {tradingInfo.price.toFixed(2)} :{" "}
+                      {tradingInfo.toAsset.title}/{tradingInfo.fromAsset.title}
+                    </Text>
                   </Flex>
                 </Box>
                 <Box w={"100%"} p={2}>

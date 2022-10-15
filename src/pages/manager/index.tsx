@@ -6,7 +6,6 @@ import { DataTable } from "components/DataTable";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql, useQuery } from "@apollo/client";
-import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
 import ManagerFundListCard from "components/manager/ManagerFundListCard";
 import { useAccount } from "wagmi";
@@ -40,10 +39,7 @@ const GET_VAULTS_QUERY = gql`
       denominatedAsset
       vaultProxy
       comptrollerProxy
-      fundInfo {
-        symbol
-        name
-      }
+      name
       price {
         time
         gav
@@ -185,12 +181,19 @@ const Vault: NextPageWithLayout = () => {
       table: [],
     };
     let tableResult = [];
+    console.log(data.funds);
     for (let index = 0; index < data.funds.length; index++) {
       const fund = data.funds[index];
-      const aumNow = Number(await getAUMByUSDT(fund.vaultProxy));
+      let aumNow = 0;
+      let priceNow = 0;
+      if (fund.price.length !== 0) {
+        aumNow = Number(fund.price.at(-1).gav);
+        priceNow = Number(fund.price.at(-1).navPerShare);
+      }
+      //const aumNow = 1;
       pageData.AUMSum += aumNow;
       pageData.depositorCount += fund.depositorCount;
-      const priceNow = Number(await getNavPerShareByUSDT(fund.vaultProxy));
+      //const priceNow = Number(data.funds.price.gav.at(-1));
 
       let aumChange: number | "-"[] = ["-", "-", "-"]; // 1d ,7d, 30d
       const now = new Date();
@@ -218,7 +221,7 @@ const Vault: NextPageWithLayout = () => {
 
       tableResult.push({
         address: fund.vaultProxy,
-        name: fund.fundInfo.name,
+        name: fund.name,
         aum: aumNow,
         //aum: 1,
         denominatedAsset: {

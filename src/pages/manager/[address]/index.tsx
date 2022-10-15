@@ -35,11 +35,9 @@ const GET_VAULT_DETAIL = gql`
         navPerShare
         time
       }
-      fundInfo {
-        symbol
-        name
-        denominatedAsset
-      }
+      symbol
+      name
+      denominatedAsset
     }
   }
 `;
@@ -112,17 +110,15 @@ const Vault: NextPageWithLayout = () => {
       component: (
         <FundOverview
           priceChartData={data.fund.price}
-          name={data.fund.fundInfo.name}
+          name={data.fund.name}
           description={data.fund.description}
           aum={vaultData.AUM}
           averageMonthlyReturn={vaultData.navAverageMonthReturn}
           averageMonthlyGrowth={vaultData.navAverageMonthGrowth}
-          denominatedAssetName={
-            AssetAddressToName[data.fund.fundInfo.denominatedAsset]
-          }
+          denominatedAssetName={AssetAddressToName[data.fund.denominatedAsset]}
           depositers={data.fund.depositorCount}
           comptrollerProxyAddress={data.fund.comptrollerProxy}
-          denominatedAssetAddress={data.fund.fundInfo.denominatedAsset}
+          denominatedAssetAddress={data.fund.denominatedAsset}
           vaultProxyAddress={data.fund.vaultProxy}
         />
       ),

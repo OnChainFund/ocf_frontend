@@ -21,7 +21,6 @@ const EDIT_FUND_INFO = gql`
         vaultProxy: { iExact: "0x9dd3b3471AF147DF6c7E93ff35a5f04eE9342e9C" }
       }
     ) {
-      name
       description
       detail
     }

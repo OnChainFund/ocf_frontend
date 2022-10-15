@@ -43,7 +43,7 @@ export default function NavBar() {
     { title: "Home", link: "/", isExternal: false },
     { title: "Fund", link: "/funds", isExternal: false },
 
-    { title: "Testing Page", link: "/test", isExternal: false },
+    //{ title: "Testing Page", link: "/test", isExternal: false },
     {
       title: "Docs",
       link: "https://onchainfund.github.io/doc/",

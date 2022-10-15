@@ -7,6 +7,7 @@ import VaultListCard from "components/funds/FundListCard";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql, useQuery } from "@apollo/client";
+import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import { useEffect, useState } from "react";
 import { AssetAddressToName } from "abis/ocf/AssetAddressToName";
 // vault
@@ -177,14 +178,10 @@ const Vault: NextPageWithLayout = () => {
     let tableResult = [];
     for (let index = 0; index < data.funds.length; index++) {
       const fund = data.funds[index];
-      let aumNow = 0;
-      let priceNow = 0;
-      if (fund.price.length !== 0) {
-        aumNow = Number(fund.price.at(-1).gav);
-        priceNow = Number(fund.price.at(-1).navPerShare);
-      }
+      const aumNow = Number(await getAUMByUSDT(fund.vaultProxy));
       pageData.AUMSum += aumNow;
       pageData.depositorCount += fund.depositorCount;
+      const priceNow = Number(await getNavPerShareByUSDT(fund.vaultProxy));
 
       let aumChange: number | "-"[] = ["-", "-", "-"]; // 1d ,7d, 30d
       const now = new Date();
@@ -215,7 +212,7 @@ const Vault: NextPageWithLayout = () => {
         name: fund.name,
         aum: aumNow,
         //aum: 1,
-        denominatedAsset: fund.denominatedAsset,
+        denominatedAsset: fund["denominatedAsset"],
         price: priceNow,
         thisMonth: percentage(aumChange[0], aumNow),
         thisWeek: percentage(aumChange[1], aumNow),
