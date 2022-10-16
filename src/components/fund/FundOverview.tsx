@@ -1,24 +1,7 @@
-import {
-  Image,
-  Box,
-  Flex,
-  Stack,
-  Text,
-  Button,
-  Spacer,
-} from "@chakra-ui/react";
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useEnsAvatar,
-  useEnsName,
-} from "wagmi";
-import { VaultChart } from "components/fund/VaultChart";
+import { Image, Box, Flex, Stack, Text, Button } from "@chakra-ui/react";
 import { DepositButton } from "components/buttons/DepositButton";
 import { WithdrawButton } from "components/buttons/WithdrawButton";
 import BasicStatistics from "components/fund/VaultInfo";
-import { SimpleChart } from "components/chart/SimpleChart";
 import { OverviewChart } from "components/chart/OverviewChart";
 import { useState } from "react";
 
@@ -53,6 +36,7 @@ export default function FundOverview(props: Props) {
   function changeChartType() {
     setChartType(chartType === 0 ? 1 : 0);
   }
+  console.log(priceData);
   return (
     <>
       <Box w="100%" h="100%">

@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { getAUMByUSDT, getNavPerShareByUSDT } from "app/feature/vaults";
 import dynamic from "next/dynamic";
 import { AssetAddressToName } from "abis/ocf/AssetAddressToName";
+import About from "components/fund/About";
 const FundOverview = dynamic(() => import("components/fund/FundOverview"), {
   ssr: false,
 });
@@ -25,15 +26,16 @@ const GET_VAULT_DETAIL = gql`
       }
       depositorCount
       description
+      detail
       vaultProxy
       price {
         gav
         navPerShare
         time
       }
-        symbol
-        name
-        denominatedAsset
+      symbol
+      name
+      denominatedAsset
     }
   }
 `;
@@ -97,6 +99,7 @@ const Vault: NextPageWithLayout = () => {
     };
     setVaultData(vaultData);
   };
+
   const VaultNavList: Array<VaultNav> = [
     {
       name: "Overview",
@@ -108,15 +111,17 @@ const Vault: NextPageWithLayout = () => {
           aum={vaultData.AUM}
           averageMonthlyReturn={vaultData.navAverageMonthReturn}
           averageMonthlyGrowth={vaultData.navAverageMonthGrowth}
-          denominatedAssetName={
-            AssetAddressToName[data.fund.denominatedAsset]
-          }
+          denominatedAssetName={AssetAddressToName[data.fund.denominatedAsset]}
           depositers={data.fund.depositorCount}
           comptrollerProxyAddress={data.fund.comptrollerProxy}
           denominatedAssetAddress={data.fund.denominatedAsset}
           vaultProxyAddress={data.fund.vaultProxy}
         />
       ),
+    },
+    {
+      name: "About",
+      component: <About name={data.fund.name} detail={data.fund.detail} />,
     },
     {
       name: "Portflio",
@@ -130,7 +135,7 @@ const Vault: NextPageWithLayout = () => {
     },
     { name: "Fees", component: <Fee /> },
     // { name: "Policies", component: <Policies /> },
-    //{ name: "Depositers", component: <Depositer /> },
+    { name: "Depositers", component: <Depositer /> },
   ];
   return (
     <>

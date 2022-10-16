@@ -10,6 +10,10 @@ interface Prop {
     areaBottomColor: string;
   };
 }
+interface ChartData {
+  time: string;
+  value: number;
+}
 export const SimpleChart = (props: Prop) => {
   const {
     data,
@@ -43,7 +47,12 @@ export const SimpleChart = (props: Prop) => {
       topColor: areaTopColor,
       bottomColor: areaBottomColor,
     });
-    newSeries.setData(data);
+    let newDataList: ChartData[] = [];
+    for (var index in data) {
+      newDataList.push({ time: data[index].time, value: data[index].value });
+    }
+    //newSeries.setData(data);
+    newSeries.setData(newDataList);
 
     window.addEventListener("resize", handleResize);
 

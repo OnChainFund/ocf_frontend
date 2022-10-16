@@ -29,7 +29,7 @@ export function ChartPannel(props: Prop) {
   if (error) {
     return <>error</>;
   }
-
+  console.log(data.asset.ftxPrice);
   return (
     <>
       <Box borderWidth="2px" borderRadius="lg" mr={10}>
