@@ -37,13 +37,19 @@ export function GetMockedUSDT() {
     close();
     addToast("success", "Complete! Enjoy your trading");
   }
+  if (!isConnected) {
+    return (
+      <>
+        <Button disabled={true}>Get Test USDT</Button>
+      </>
+    );
+  }
   return (
     <>
       <Button
         onClick={() => {
           sendUSD(address);
         }}
-        disabled={!isConnected}
       >
         Get Test USDT
       </Button>
