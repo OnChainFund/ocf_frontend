@@ -9,6 +9,7 @@ import { FunctionNotFinished } from "components/FunctionNotFinished";
 import dynamic from "next/dynamic";
 import Setting from "components/manager/setting/Setting";
 import { AssetAddressToName } from "abis/ocf/AssetAddressToName";
+import About from "components/fund/About";
 const FundOverview = dynamic(() => import("components/fund/FundOverview"), {
   ssr: false,
 });
@@ -38,6 +39,7 @@ const GET_VAULT_DETAIL = gql`
       symbol
       name
       denominatedAsset
+      detail
     }
   }
 `;
@@ -123,6 +125,11 @@ const Vault: NextPageWithLayout = () => {
         />
       ),
     },
+
+    {
+      name: "About",
+      component: <About name={data.fund.name} detail={data.fund.detail} />,
+    },
     {
       name: "Trade",
       component: (
@@ -140,6 +147,7 @@ const Vault: NextPageWithLayout = () => {
         <Setting
           name={data["fund"]["name"]}
           description={data["fund"]["description"]}
+          vaultProxyAddress={data.fund.vaultProxy}
         />
       ),
     },

@@ -14,12 +14,14 @@ import { useForm } from "react-hook-form";
 import { gql, useMutation } from "@apollo/client";
 
 const EDIT_FUND_INFO = gql`
-  mutation EditFund($description: String!, $detail: String!) {
+  mutation EditFund(
+    $description: String!
+    $detail: String!
+    $vaultProxyAddress: String!
+  ) {
     updateFunds(
       data: { description: $description, detail: $detail }
-      filters: {
-        vaultProxy: { iExact: "0x9dd3b3471AF147DF6c7E93ff35a5f04eE9342e9C" }
-      }
+      filters: { vaultProxy: { iExact: $vaultProxyAddress } }
     ) {
       description
       detail
@@ -30,6 +32,7 @@ const EDIT_FUND_INFO = gql`
 interface Prop {
   name: string;
   description: string;
+  vaultProxyAddress: string;
 }
 export default function Setting(props: Prop) {
   const {
@@ -42,45 +45,53 @@ export default function Setting(props: Prop) {
       detail: props.description,
     },
   });
-  const [editFundInfo, { data }] = useMutation(EDIT_FUND_INFO);
+  const [editFundInfo, { data, loading, error }] = useMutation(EDIT_FUND_INFO);
 
   function onSubmit(values) {
     editFundInfo({
       variables: {
         description: values.description,
         detail: values.detail,
+        vaultProxyAddress: props.vaultProxyAddress,
       },
     });
   }
+
+  if (loading) return "Submitting...";
+  if (error) return `Submission error! ${error.message}`;
   return (
     <>
       <Text fontSize="3xl">Edit Fund Info: {props.name}</Text>
       <Box borderWidth="2px" p={4} mt={3} borderRadius="lg" w={"100%"}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl>
-            <FormLabel htmlFor="description">Description</FormLabel>
-            <Input
-              id="description"
-              placeholder="description"
-              {...register("description", {
-                required: "This is required",
-              })}
-            />
-            <FormErrorMessage>
-              {errors.description && errors.description.message}
-            </FormErrorMessage>
-            <FormLabel htmlFor="detail">Detail</FormLabel>
-            <Textarea
-              id="detail"
-              placeholder="detail"
-              {...register("detail", {
-                required: "This is required",
-              })}
-              h={"500"}
-            />
-            <FormErrorMessage>
-              {errors.description && errors.description.message}
-            </FormErrorMessage>
+            <Box m={5}>
+              <FormLabel htmlFor="description">Description</FormLabel>
+              <Input
+                id="description"
+                placeholder="description"
+                {...register("description", {
+                  required: "This is required",
+                })}
+              />
+              <FormErrorMessage>
+                {errors.description && errors.description.message}
+              </FormErrorMessage>
+            </Box>
+            <Box m={5}>
+              <FormLabel htmlFor="detail">About</FormLabel>
+              <Textarea
+                id="detail"
+                placeholder="detail"
+                {...register("detail", {
+                  required: "This is required",
+                })}
+                h={"500"}
+              />
+              <FormErrorMessage>
+                {errors.description && errors.description.message}
+              </FormErrorMessage>
+            </Box>
           </FormControl>
           <Flex>
             <Spacer />{" "}
