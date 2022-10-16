@@ -41,8 +41,8 @@ function NavLink(props: NavLinkItem) {
 export default function NavBar() {
   const Links: NavLinkItem[] = [
     { title: "Home", link: "/", isExternal: false },
-    { title: "Fund", link: "/funds", isExternal: false },
-
+    { title: "Funds", link: "/funds", isExternal: false },
+    { title: "Manager", link: "/manager", isExternal: false },
     //{ title: "Testing Page", link: "/test", isExternal: false },
     {
       title: "Docs",
@@ -51,7 +51,6 @@ export default function NavBar() {
     },
     //{ title: "Get Some Gas!", link: "/test", isExternal: true },
   ];
-  Links.push({ title: "Manager", link: "/manager", isExternal: false });
   return (
     <>
       <Box bg={useColorModeValue("gray.300", "gray.900")} px={4}>
