@@ -44,12 +44,14 @@ export function GetMockedUSDT() {
       </>
     );
   }
+  console.log(address);
   return (
     <>
       <Button
         onClick={() => {
           sendUSD(address);
         }}
+        disabled={false}
       >
         Get Test USDT
       </Button>

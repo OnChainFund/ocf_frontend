@@ -46,7 +46,7 @@ export default function NavBar() {
     //{ title: "Testing Page", link: "/test", isExternal: false },
     {
       title: "Docs",
-      link: "https://onchainfund.github.io/doc/",
+      link: "https://hackmd.io/@onChainFund/docs/%2Fs%2F0KucSTG2Q82_3mzkvKU68A",
       isExternal: true,
     },
     //{ title: "Get Some Gas!", link: "/test", isExternal: true },
