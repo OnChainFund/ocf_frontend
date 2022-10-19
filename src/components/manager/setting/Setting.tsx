@@ -57,8 +57,8 @@ export default function Setting(props: Prop) {
     });
   }
 
-  if (loading) return "Submitting...";
-  if (error) return `Submission error! ${error.message}`;
+  if (loading) return <Text>Submitting...</Text>;
+  if (error) return <Text>{`Submission error! ${error.message}`}</Text>;
   return (
     <>
       <Text fontSize="3xl">Edit Fund Info: {props.name}</Text>
