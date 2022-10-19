@@ -199,7 +199,7 @@ export default function TradePannel(props: Prop) {
   }
 
   for (let i = 0; i < Assets.length; i++) {
-    assets.push({ ...Assets[i], balance: Number(data[i] / 1e18) });
+    assets.push({ ...Assets[i], balance: Number(Number(data[i]) / 1e18) });
   }
   return (
     <>
