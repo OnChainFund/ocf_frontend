@@ -152,6 +152,7 @@ export default function TradePannel(props: Prop) {
     contracts: [...contracts],
     allowFailure: false,
   });
+  console.log(data);
 
   if (!isConnected) {
     return <Text fontSize="2xl"> Not Connected </Text>;
@@ -178,10 +179,28 @@ export default function TradePannel(props: Prop) {
 
   const overBalanceError =
     Number(tradingInfo.fromAsset.balance) < Number(tradingInfo.inputAmount);
-  //||
-  //Number(tradingInfo.toAsset.balance) < Number(tradingInfo.outputAmount);
-  console.log(assets);
+  let originalPrice = 0;
+  if (tradingPairContainUSDT()) {
+    originalPrice = Number(data.at(-1)[1] / 1e10);
+  } else {
+    originalPrice =
+      Number(data.at(-2)[1] / 1e10) * Number(data.at(-1)[1] / 1e10);
+  }
+  function calculateSlipage() {
+    if (tradingInfo.price === 0) {
+      return 0;
+    }
+    const ratio = tradingInfo.price / originalPrice;
+    if (ratio > 1) {
+      return (ratio - 1) * 100;
+    } else {
+      return (1 - ratio) * 100;
+    }
+  }
 
+  for (let i = 0; i < Assets.length; i++) {
+    assets.push({ ...Assets[i], balance: Number(data[i] / 1e18) });
+  }
   return (
     <>
       <Flex>
@@ -204,7 +223,7 @@ export default function TradePannel(props: Prop) {
                 </Box>
                 <Box>
                   <AmountInputBox
-                    assets={Assets}
+                    assets={assets}
                     asset={tradingInfo.fromAsset}
                     type={1}
                     amount={tradingInfo.inputAmount}
@@ -212,7 +231,7 @@ export default function TradePannel(props: Prop) {
                     setAmount={resetAmount}
                   />
                   <AmountInputBox
-                    assets={Assets}
+                    assets={assets}
                     asset={tradingInfo.toAsset}
                     type={2}
                     amount={tradingInfo.outputAmount}
@@ -222,6 +241,14 @@ export default function TradePannel(props: Prop) {
                 </Box>
                 <Box w={"100%"} p={2}>
                   <Flex>
+                    <Text>Original Price:</Text>
+                    <Spacer />
+                    <Text>
+                      {originalPrice.toFixed(2)} : {tradingInfo.toAsset.title}/
+                      {tradingInfo.fromAsset.title}
+                    </Text>
+                  </Flex>
+                  <Flex>
                     <Text>Price:</Text>
                     <Spacer />
                     <Text>
@@ -229,12 +256,17 @@ export default function TradePannel(props: Prop) {
                       {tradingInfo.toAsset.title}/{tradingInfo.fromAsset.title}
                     </Text>
                   </Flex>
+                  <Flex>
+                    <Text>Slipage:</Text>
+                    <Spacer />
+                    <Text>{calculateSlipage().toFixed(1)}%</Text>
+                  </Flex>
                 </Box>
                 <Box w={"100%"} p={2}>
                   <Flex>
                     <Text>Slippage Tolerance:</Text>
                     <Spacer />
-                    <Text>{tradingInfo.slippageTolerance * 100}%</Text>
+                    <Text>5%</Text>
                   </Flex>
                 </Box>
 
