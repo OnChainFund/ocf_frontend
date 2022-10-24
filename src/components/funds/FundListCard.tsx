@@ -1,8 +1,4 @@
-import {
-  Box,
-  chakra,
-  SimpleGrid,
-} from "@chakra-ui/react";
+import { Box, chakra, SimpleGrid } from "@chakra-ui/react";
 import { AiFillFund } from "react-icons/ai";
 import { FaMoneyBillAlt } from "react-icons/fa";
 import { StatsCard } from "components/cards/StatsCard";
@@ -22,15 +18,15 @@ export default function AssetListCard(props: AssetListCardProps) {
         The Asstes We Support
       </chakra.h1>
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
-        <StatsCard
+        {/*<StatsCard
           title={"Assets Under Management"}
           stat={"$" + String(props.AUMSum.toFixed(2))}
           icon={<FaMoneyBillAlt size={"3em"} />}
-        />
+  />*/}
         <StatsCard
           title={"Assets"}
           stat={String(props.assetCount)}
-          icon={<AiFillFund size={"3em"} />}
+          icon={<FaMoneyBillAlt size={"3em"} />}
         />
       </SimpleGrid>
     </Box>
