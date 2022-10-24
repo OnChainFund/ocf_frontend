@@ -3,7 +3,7 @@ import type { NextPageWithLayout } from "../../types/page";
 import { Box, chakra, Text } from "@chakra-ui/react";
 import { DataTable } from "components/DataTable";
 import { createColumnHelper } from "@tanstack/react-table";
-import AssetListCard from "components/funds/FundListCard";
+import AssetListCard from "components/assets/AssetListCard";
 import { Assets, AssetsToPoolAddress } from "pages/api/mocks/assets";
 import { useContractReads } from "wagmi";
 import { ReadContract } from "types/contract";

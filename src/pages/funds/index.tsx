@@ -3,12 +3,13 @@ import type { NextPageWithLayout } from "../../types/page";
 import { useRouter } from "next/router";
 import { Box } from "@chakra-ui/react";
 import { DataTable } from "components/DataTable";
-import VaultListCard from "components/funds/FundListCard";
+import VaultListCard from "components/assets/AssetListCard";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { AssetAddressToName } from "abis/ocf/AssetAddressToName";
+import FundListCard from "components/funds/FundListCard";
 // vault
 type VaultType = {
   address: string;
@@ -233,8 +234,8 @@ const Vault: NextPageWithLayout = () => {
         <title>Funds</title>
       </Head>
       <>
-        <VaultListCard
-          vaultCount={data.funds.length}
+        <FundListCard
+          fundCount={data.funds.length}
           depositorCount={vaultsData.depositorCount}
           AUMSum={vaultsData.AUMSum}
         />
