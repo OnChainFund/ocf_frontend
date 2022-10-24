@@ -230,7 +230,7 @@ const Vault: NextPageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Vaults</title>
+        <title>Funds</title>
       </Head>
       <>
         <VaultListCard

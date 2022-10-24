@@ -1,14 +1,8 @@
-import {
-  Box,
-  chakra,
-  Flex,
-  SimpleGrid,
-  Spacer,
-} from "@chakra-ui/react";
+import { Box, chakra, Flex, SimpleGrid, Spacer } from "@chakra-ui/react";
 import { BsPerson } from "react-icons/bs";
 import { AiFillFund } from "react-icons/ai";
 import { FaMoneyBillAlt } from "react-icons/fa";
-import { StatsCard } from "components/funds/StatsCard";
+import { StatsCard } from "components/cards/StatsCard";
 import { NewFundButton } from "components/buttons/NewFundButton";
 interface VaultListCardProps {
   vaultCount: number;
@@ -28,7 +22,7 @@ export default function ManagerFundListCard(props: VaultListCardProps) {
           Manage Your Funds
         </chakra.h1>
         <Spacer />
-        <NewFundButton  />
+        <NewFundButton />
       </Flex>
 
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>

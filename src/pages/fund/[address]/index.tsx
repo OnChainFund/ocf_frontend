@@ -135,7 +135,7 @@ const Vault: NextPageWithLayout = () => {
     },
     { name: "Fees", component: <Fee /> },
     // { name: "Policies", component: <Policies /> },
-    { name: "Depositers", component: <Depositer /> },
+    //{ name: "Depositers", component: <Depositer /> },
   ];
   return (
     <>

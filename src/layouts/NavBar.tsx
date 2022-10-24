@@ -49,6 +49,8 @@ export default function NavBar() {
       link: "https://hackmd.io/@onChainFund/docs/%2Fs%2F0KucSTG2Q82_3mzkvKU68A",
       isExternal: true,
     },
+    { title: "Assets", link: "/assets", isExternal: false },
+    { title: "Strategy", link: "/manager", isExternal: false },
     //{ title: "Get Some Gas!", link: "/test", isExternal: true },
   ];
   return (

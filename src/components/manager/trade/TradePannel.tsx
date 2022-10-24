@@ -10,7 +10,6 @@ import { useState } from "react";
 import { callOnIntegrationArgs } from "app/feature/utils/actions";
 import AmountInputBox from "./AmountInputBox";
 import { useAccount, useContractReads } from "wagmi";
-import { formatUnits } from "ethers/lib/utils";
 import { Asset } from "types/asset";
 import { Assets } from "pages/api/mocks/assets";
 import { ReadContract } from "types/contract";
@@ -249,7 +248,7 @@ export default function TradePannel(props: Prop) {
                     </Text>
                   </Flex>
                   <Flex>
-                    <Text>Price:</Text>
+                    <Text>Swap Price:</Text>
                     <Spacer />
                     <Text>
                       {tradingInfo.price.toFixed(2)} :{" "}
