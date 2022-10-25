@@ -31,7 +31,7 @@ export default function FundListCard(props: FundListCardProps) {
       </chakra.h1>
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
         <StatsCard
-          title={"Assets"}
+          title={"Depositers"}
           stat={String(props.depositorCount)}
           icon={<BsPerson size={"3em"} />}
         />
