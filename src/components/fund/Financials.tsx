@@ -147,9 +147,9 @@ const Fianacials = (props: Prop) => {
     //console.log(ethers.utils.formatEther(tx));
     setFundFinancialData({
       gav: gavValue,
-      nav: navValue ,
+      nav: navValue,
       supply: supply,
-      price: navShareValue ,
+      price: navShareValue,
     });
   };
   useEffect(() => {
@@ -168,9 +168,9 @@ const Fianacials = (props: Prop) => {
           tokenName={props.name}
           denominatedAssetName={"USDT"}
         />
-        <Heading size={"lg"}>Return Metrics</Heading>
+        {/*<Heading size={"lg"}>Return Metrics</Heading>
 
-        <Heading size={"lg"}>Risk Metrics (Trailing 30 Days)</Heading>
+  <Heading size={"lg"}>Risk Metrics (Trailing 30 Days)</Heading>*/}
       </Stack>
     </Box>
   );
