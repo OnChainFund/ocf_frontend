@@ -54,10 +54,10 @@ export const SimpleChart = (props: Prop) => {
     //newSeries.setData(data);
     newSeries.setData(newDataList);
 
-    window.addEventListener("resize", handleResize);
+    //window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      //window.removeEventListener("resize", handleResize);
 
       chart.remove();
     };
