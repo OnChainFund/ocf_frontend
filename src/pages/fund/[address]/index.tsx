@@ -124,7 +124,7 @@ const Vault: NextPageWithLayout = () => {
       component: <About name={data.fund.name} detail={data.fund.detail} />,
     },
     {
-      name: "Portflio",
+      name: "Portfolio",
       component: (
         <PortFolio vaultProxyAddress={address as string} AUM={vaultData.AUM} />
       ),
