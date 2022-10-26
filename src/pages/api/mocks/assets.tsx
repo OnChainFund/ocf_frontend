@@ -115,12 +115,12 @@ export const Assets: Asset[] = [
     address: "0xe05F46AAfa9919f722bc83fbD2Bb7B3Ac23E1Bc2",
     balance: "0.0",
   },
-  {
-    title: "USDTDOWN",
-    priceFeed: "0x9a13BE5e8D310C07BF4dBE7Dc4CF5b699AA5430a",
-    address: "0x7f5BE805EFdbc5b42A3cfBC41B2961A0A9d9e3B2",
-    balance: "0.0",
-  },
+  // {
+  //   title: "USDTDOWN",
+  //   priceFeed: "0x9a13BE5e8D310C07BF4dBE7Dc4CF5b699AA5430a",
+  //   address: "0x7f5BE805EFdbc5b42A3cfBC41B2961A0A9d9e3B2",
+  //   balance: "0.0",
+  // },
 ];
 
 export const AssetsToPoolAddress = {
