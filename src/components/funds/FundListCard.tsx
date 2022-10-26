@@ -3,6 +3,7 @@ import {
   chakra,
   Flex,
   SimpleGrid,
+  Spacer,
   Stat,
   StatLabel,
   StatNumber,
@@ -13,6 +14,7 @@ import { BsPerson } from "react-icons/bs";
 import { AiFillFund } from "react-icons/ai";
 import { FaMoneyBillAlt } from "react-icons/fa";
 import { StatsCard } from "../cards/StatsCard";
+import { GetMockedUSDT } from "components/buttons/GetMockedUSDT";
 interface FundListCardProps {
   fundCount: number;
   depositorCount: number;
@@ -21,14 +23,20 @@ interface FundListCardProps {
 export default function FundListCard(props: FundListCardProps) {
   return (
     <Box maxW="7xl" mx={"auto"} pt={5} px={{ base: 2, sm: 12, md: 17 }}>
-      <chakra.h1
-        textAlign={"center"}
-        fontSize={"4xl"}
-        py={10}
-        fontWeight={"bold"}
-      >
-        The Most Diversify AI Crypto Fund Platfrom
-      </chakra.h1>
+      <Flex>
+        <chakra.h1
+          textAlign={"center"}
+          fontSize={"4xl"}
+          py={10}
+          fontWeight={"bold"}
+        >
+          The Most Diversify AI Crypto Fund Platfrom
+        </chakra.h1>
+        <Spacer />
+        
+        <GetMockedUSDT />
+      </Flex>
+
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
         <StatsCard
           title={"Depositers"}

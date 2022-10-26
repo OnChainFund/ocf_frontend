@@ -90,7 +90,7 @@ export default function NavBar() {
               </Link>
             </Button>
             <Spacer />
-            <GetMockedUSDT />
+
             <Spacer />
             <ConnectButton label="Connect to Wallet" chainStatus="name" />
             <Spacer />
