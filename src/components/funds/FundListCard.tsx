@@ -1,5 +1,6 @@
 import {
   Box,
+  Center,
   chakra,
   Flex,
   SimpleGrid,
@@ -33,8 +34,9 @@ export default function FundListCard(props: FundListCardProps) {
           The Most Diversify AI Crypto Fund Platfrom
         </chakra.h1>
         <Spacer />
-        
-        <GetMockedUSDT />
+        <Center>
+          <GetMockedUSDT />
+        </Center>
       </Flex>
 
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>

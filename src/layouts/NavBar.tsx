@@ -50,7 +50,7 @@ export default function NavBar() {
       isExternal: true,
     },
     { title: "Assets", link: "/assets", isExternal: false },
-    { title: "Strategy", link: "/manager", isExternal: false },
+    //{ title: "Strategy", link: "/manager", isExternal: false },
     //{ title: "Get Some Gas!", link: "/test", isExternal: true },
   ];
   return (
