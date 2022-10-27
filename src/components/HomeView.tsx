@@ -38,11 +38,11 @@ export default function HomeView() {
           >
             Make money from <br />
             <Text as={"span"} color={"green.400"}>
-              Ai & Crypto
+              AI & Crypto
             </Text>
           </Heading>
           <Text color={"gray.500"}>
-            使用 Ai 策略,花最少的時間獲得最穩定的投資成效
+            使用 AI 策略,花最少的時間獲得最穩定的投資成效
           </Text>
           <Stack
             direction={"column"}
